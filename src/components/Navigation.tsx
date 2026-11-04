@@ -189,6 +189,7 @@ function Navigation({ parentToChild, modeChange }: any) {
         onClose={() => setMobileOpen(false)}
         ModalProps={{ keepMounted: true }}
         PaperProps={{ className: "nav-drawer__paper" }}
+        BackdropProps={{ className: "nav-drawer__backdrop" }}
       >
         {drawer}
       </Drawer>

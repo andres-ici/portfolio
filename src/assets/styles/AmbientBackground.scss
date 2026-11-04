@@ -1,3 +1,10 @@
+/* --------------------------------------------------------------------------
+   Ambient background: drifting ribbon field
+   Ribbons are generated in AmbientBackground.tsx and themed with the tokens
+   in _tokens.scss. The SVG is static; only outer wrappers are transformed so
+   the artwork is rasterized once and composited instead of repainted.
+   -------------------------------------------------------------------------- */
+
 .ambient {
   position: fixed;
   inset: 0;
@@ -5,6 +12,8 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--bg);
+  contain: strict;
+  --ambient-shift: 0px;
 }
 
 .ambient__base {
@@ -12,120 +21,135 @@
   inset: 0;
   background:
     radial-gradient(
-      120% 78% at 50% -14%,
+      120% 80% at 72% -14%,
       var(--ambient-horizon) 0%,
       transparent 62%
     ),
-    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg) 34%, var(--bg) 100%);
+    radial-gradient(
+      95% 70% at 4% 30%,
+      var(--ambient-1) 0%,
+      transparent 64%
+    ),
+    radial-gradient(
+      85% 70% at 92% 96%,
+      var(--ambient-3) 0%,
+      transparent 66%
+    ),
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg) 40%, var(--bg) 100%);
 }
 
-.ambient__orb {
+/* --------------------------------------------------------------------------
+   Ribbon field (static artwork, moving wrappers)
+   -------------------------------------------------------------------------- */
+
+.ambient__ribbons {
   position: absolute;
-  border-radius: 50%;
-  opacity: 0.95;
+  inset: -16% -8%;
+  transform: translate3d(0, calc(var(--ambient-shift) * -1), 0);
   will-change: transform;
 }
 
-.ambient__orb--one {
-  width: min(78vw, 1080px);
+.ambient__ribbons-drift {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 45%;
+  animation: ambient-drift 32s var(--ease-soft) infinite alternate;
+  will-change: transform;
+}
+
+.ambient__ribbon-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ambient__stop--warm {
+  stop-color: var(--ribbon-1);
+}
+
+.ambient__stop--mid {
+  stop-color: var(--ribbon-2);
+}
+
+.ambient__stop--cool {
+  stop-color: var(--ribbon-3);
+}
+
+.ambient__ribbon {
+  fill: none;
+  stroke-width: 1.15px;
+}
+
+.ambient__ribbon--main {
+  opacity: var(--ribbon-opacity-main);
+}
+
+.ambient__ribbon--upper {
+  opacity: var(--ribbon-opacity-upper);
+  stroke-width: 1px;
+}
+
+.ambient__ribbon--lower {
+  opacity: var(--ribbon-opacity-lower);
+  stroke-width: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   Soft colour blooms
+   -------------------------------------------------------------------------- */
+
+.ambient__glow {
+  position: absolute;
+  width: min(72vw, 960px);
   aspect-ratio: 1;
-  top: -24%;
-  left: -16%;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+.ambient__glow--violet {
+  top: -26%;
+  right: -14%;
   background: radial-gradient(
     circle at 50% 50%,
     var(--ambient-1) 0%,
-    transparent 67%
+    transparent 66%
   );
-  animation: ambient-drift-one 56s var(--ease-soft) infinite alternate;
+  animation: ambient-glow-one 30s var(--ease-soft) infinite alternate;
 }
 
-.ambient__orb--two {
-  width: min(62vw, 900px);
-  aspect-ratio: 1;
-  top: 18%;
-  right: -22%;
+.ambient__glow--blue {
+  bottom: -24%;
+  left: -16%;
+  width: min(78vw, 1040px);
   background: radial-gradient(
     circle at 50% 50%,
     var(--ambient-2) 0%,
     transparent 68%
   );
-  animation: ambient-drift-two 68s var(--ease-soft) infinite alternate;
+  animation: ambient-glow-two 38s var(--ease-soft) infinite alternate;
 }
 
-.ambient__orb--three {
-  width: min(52vw, 760px);
-  aspect-ratio: 1;
-  bottom: -20%;
-  left: 18%;
-  background: radial-gradient(
-    circle at 50% 50%,
-    var(--ambient-3) 0%,
-    transparent 70%
-  );
-  animation: ambient-drift-three 60s var(--ease-soft) infinite alternate;
-}
+/* --------------------------------------------------------------------------
+   Travelling light + grain
+   -------------------------------------------------------------------------- */
 
-.ambient__grid {
+.ambient__sheen {
   position: absolute;
-  inset: -40px;
-  background-image: linear-gradient(
-      to right,
-      var(--grid-color) 1px,
-      transparent 1px
-    ),
-    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
-  background-size: 88px 88px;
-  opacity: var(--grid-opacity);
-  -webkit-mask-image: radial-gradient(
-    ellipse 82% 62% at 50% 18%,
-    #000 0%,
-    transparent 78%
-  );
-  mask-image: radial-gradient(
-    ellipse 82% 62% at 50% 18%,
-    #000 0%,
-    transparent 78%
-  );
-  animation: ambient-grid-drift 130s var(--ease-soft) infinite alternate;
-  will-change: transform;
-}
-
-.ambient__sweep {
-  position: absolute;
-  top: -32%;
-  left: -26%;
-  width: 58vw;
-  height: 168vh;
+  top: -40%;
+  left: -32%;
+  width: 56vw;
+  height: 180vh;
   background: linear-gradient(
     102deg,
-    transparent 22%,
-    rgba(169, 198, 234, 0.065) 46%,
-    rgba(255, 255, 255, 0.035) 52%,
-    transparent 72%
-  );
-  transform: rotate(17deg) translate3d(0, 0, 0);
-  opacity: 0.7;
-  animation: ambient-sweep 36s var(--ease-soft) infinite alternate;
-  will-change: transform, opacity;
-}
-
-.ambient__sweep--reverse {
-  top: auto;
-  right: -28%;
-  bottom: -34%;
-  left: auto;
-  width: 52vw;
-  height: 158vh;
-  background: linear-gradient(
-    78deg,
     transparent 24%,
-    rgba(125, 162, 206, 0.055) 48%,
-    rgba(255, 255, 255, 0.025) 54%,
+    var(--sheen-a) 46%,
+    var(--sheen-b) 52%,
     transparent 74%
   );
-  transform: rotate(-14deg) translate3d(0, 0, 0);
-  opacity: 0.55;
-  animation: ambient-sweep-reverse 44s var(--ease-soft) infinite alternate;
+  opacity: 0;
+  animation: ambient-sheen 26s var(--ease-soft) infinite;
+  transition: opacity 600ms var(--ease-soft);
+  will-change: transform, opacity;
 }
 
 .ambient__grain {
@@ -134,128 +158,128 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   background-size: 160px 160px;
   opacity: var(--grain-opacity);
-  mix-blend-mode: soft-light;
 }
 
-@keyframes ambient-drift-one {
+.ambient__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 96% 78% at 50% 24%,
+      transparent 44%,
+      var(--ambient-vignette) 100%
+    ),
+    linear-gradient(180deg, var(--ambient-vignette-top) 0%, transparent 34%);
+}
+
+/* --------------------------------------------------------------------------
+   Motion
+   -------------------------------------------------------------------------- */
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(-2.6%, -0.6%, 0) rotate(-0.5deg);
+  }
+  50% {
+    transform: translate3d(0.2%, 0.8%, 0) rotate(0.1deg);
+  }
+  100% {
+    transform: translate3d(3.4%, 1.4%, 0) rotate(0.75deg);
+  }
+}
+
+@keyframes ambient-glow-one {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(5vw, 6vh, 0) scale(1.07);
+    opacity: 0.85;
   }
   100% {
-    transform: translate3d(9vw, 3vh, 0) scale(1.03);
+    transform: translate3d(-9vw, 7vh, 0) scale(1.16);
+    opacity: 1;
   }
 }
 
-@keyframes ambient-drift-two {
+@keyframes ambient-glow-two {
   0% {
-    transform: translate3d(0, 0, 0) scale(1.02);
-  }
-  50% {
-    transform: translate3d(-6vw, 5vh, 0) scale(0.97);
+    transform: translate3d(0, 0, 0) scale(1.05);
+    opacity: 0.7;
   }
   100% {
-    transform: translate3d(-3vw, -6vh, 0) scale(1.05);
+    transform: translate3d(10vw, -6vh, 0) scale(0.94);
+    opacity: 1;
   }
 }
 
-@keyframes ambient-drift-three {
+@keyframes ambient-sheen {
   0% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: rotate(17deg) translate3d(-16vw, -4vh, 0);
+    opacity: 0;
   }
-  50% {
-    transform: translate3d(4vw, -5vh, 0) scale(1.06);
+  14% {
+    opacity: 0.9;
   }
-  100% {
-    transform: translate3d(-5vw, 3vh, 0) scale(1.02);
-  }
-}
-
-@keyframes ambient-grid-drift {
-  0% {
-    transform: translate3d(-10px, -12px, 0);
-  }
-  100% {
-    transform: translate3d(14px, 10px, 0);
-  }
-}
-
-@keyframes ambient-sweep {
-  0% {
-    transform: rotate(17deg) translate3d(-6vw, -3vh, 0);
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: rotate(17deg) translate3d(22vw, 4vh, 0);
+  78% {
     opacity: 0.55;
   }
+  100% {
+    transform: rotate(17deg) translate3d(128vw, 6vh, 0);
+    opacity: 0;
+  }
 }
 
-@keyframes ambient-sweep-reverse {
-  0% {
-    transform: rotate(-14deg) translate3d(8vw, 4vh, 0);
-    opacity: 0.32;
-  }
-  50% {
-    opacity: 0.65;
-  }
-  100% {
-    transform: rotate(-14deg) translate3d(-14vw, -4vh, 0);
-    opacity: 0.42;
-  }
+/* Animation budget: freeze once the hero is out of view and while the tab is
+   hidden. The sheen is hidden when frozen so it cannot leave a static band. */
+.ambient--calm .ambient__ribbons-drift,
+.ambient--calm .ambient__glow,
+.ambient--paused .ambient__ribbons-drift,
+.ambient--paused .ambient__glow,
+.ambient--paused .ambient__sheen {
+  animation-play-state: paused;
 }
+
+.ambient--calm .ambient__sheen {
+  animation: none;
+  opacity: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive + accessibility
+   -------------------------------------------------------------------------- */
 
 @media (max-width: 768px) {
-  .ambient__orb--one {
-    width: 128vw;
-    top: -18%;
-    left: -46%;
+  .ambient__ribbons {
+    inset: -12% -22%;
   }
 
-  .ambient__orb--two {
-    width: 110vw;
-    top: 28%;
-    right: -52%;
+  .ambient__glow {
+    width: 120vw;
   }
 
-  .ambient__orb--three {
+  .ambient__glow--blue {
+    width: 132vw;
+  }
+
+  .ambient__sheen {
     width: 96vw;
-    bottom: -16%;
-    left: -10%;
   }
 
-  .ambient__grid {
-    background-size: 64px 64px;
-  }
-
-  .ambient__sweep {
-    width: 90vw;
-    height: 140vh;
-  }
-
-  .ambient__sweep--reverse {
-    width: 100vw;
-    height: 130vh;
+  .ambient__ribbon--upper {
+    opacity: calc(var(--ribbon-opacity-upper) * 0.75);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient__orb,
-  .ambient__grid,
-  .ambient__sweep {
+  .ambient__ribbons {
+    transform: none;
+  }
+
+  .ambient__ribbons-drift,
+  .ambient__glow,
+  .ambient__sheen {
     animation: none !important;
   }
 
-  .ambient__sweep {
-    opacity: 0.55;
-  }
-
-  .ambient__sweep--reverse {
-    opacity: 0.4;
+  .ambient__sheen {
+    opacity: 0;
   }
 }

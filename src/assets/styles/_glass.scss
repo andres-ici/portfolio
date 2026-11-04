@@ -157,6 +157,16 @@
   );
 }
 
+/* Reduced transparency keeps the normal glass look but drops the costly
+   backdrop filter; the denser tokens already carry the visual weight. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-button {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
 ) {

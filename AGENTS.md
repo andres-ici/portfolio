@@ -36,10 +36,12 @@ CI=true npm test -- --watchAll=false src/App.test.tsx -t "renders the portfolio 
 ## Tema visual
 
 - Modo oscuro por defecto; el claro se activa con la clase `.main-container.light-mode`.
-- Tokens en `src/assets/styles/_tokens.scss`: todo token nuevo debe definirse en `:root` y en `.main-container.light-mode`.
+- Tokens en `src/assets/styles/_tokens.scss`: todo token nuevo debe definirse en `:root` y en `.main-container.light-mode` (el bloque también cubre `body.theme-light` para portales MUI como el `Drawer`).
 - Persistencia en `localStorage` con la clave `portfolio-theme`. El script inline de `public/index.html` evita el flash de tema; si cambia la lógica de tema en `App.tsx`, sincronizar ese script, `meta[name="theme-color"]` y `documentElement`.
 - Sistema "liquid glass" en `_glass.scss`: reutilizar clases `.glass`, `.glass--interactive`, `.glass-button` en lugar de duplicar estilos.
-- Respetar `prefers-reduced-motion` y `prefers-reduced-transparency` ya contemplados en los estilos.
+- Fondo ambiental en `AmbientBackground.tsx` / `AmbientBackground.scss`: cintas SVG generadas desde puntos de control (estética de `bg-dark.png`/`bg-light.png`) más halos, brillo y grano. Sus colores usan tokens `--ribbon-*`, `--ambient-*` y `--sheen-*`. El SVG es estático: animar solo los contenedores externos (`translate`/`rotate`), nunca los `<g>`, para que el dibujo se rasterice una vez; se pausa al salir del hero y con la pestaña oculta.
+- El vidrio mantiene `backdrop-filter` en móvil con un radio menor (`--glass-blur`); solo se desactiva con `prefers-reduced-transparency`. El `Drawer` usa `--drawer-surface` porque es un portal sobre `<body>` y necesita un fondo algo más opaco que las tarjetas.
+- Respetar `prefers-reduced-motion` y `prefers-reduced-transparency` ya contemplados en los estilos. El parallax del fondo también se desactiva por JS con `prefers-reduced-motion`.
 
 ## Tests
 
