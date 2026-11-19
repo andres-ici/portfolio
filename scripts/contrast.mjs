@@ -64,7 +64,8 @@ for (const vp of viewports) {
           el.dataset.prevColor = el.style.color;
           el.style.setProperty("color", "transparent", "important");
           el.querySelectorAll("*").forEach((c) => c.style.setProperty("color", "transparent", "important"));
-          return { x: r.left, y: r.top, w: r.width, h: r.height, color, vh: innerHeight };
+          const bg = getComputedStyle(document.body).backgroundColor;
+          return { x: r.left, y: r.top, w: r.width, h: r.height, color, bg, vh: innerHeight };
         }, t.sel);
         // Skip if outside viewport (top-of-page clamp).
         if (meta.y < 0 || meta.y + meta.h > meta.vh) {
@@ -75,7 +76,7 @@ for (const vp of viewports) {
         const buf = await page.screenshot({ clip });
         await page.evaluate((sel) => { const el = document.querySelector(sel); el.style.color = ""; el.querySelectorAll("*").forEach((c) => (c.style.color = "")); }, t.sel);
 
-        const stats = await page.evaluate(async ({ b64, color, large }) => {
+        const stats = await page.evaluate(async ({ b64, color, bg, large }) => {
           const img = new Image();
           img.src = "data:image/png;base64," + b64;
           await img.decode();
@@ -88,16 +89,22 @@ for (const vp of viewports) {
           const L = (r, gg, b) => 0.2126 * lin(r) + 0.7152 * lin(gg) + 0.0722 * lin(b);
           const m = color.match(/[\d.]+/g).map(Number);
           const Lt = L(m[0], m[1], m[2]);
+          const bm = bg.match(/[\d.]+/g).map(Number);
+          const Lpage = L(bm[0], bm[1], bm[2]);
           const ratios = [];
+          const vis = [];
           for (let i = 0; i < d.length; i += 4) {
             const Lb = L(d[i], d[i + 1], d[i + 2]);
             ratios.push((Math.max(Lt, Lb) + 0.05) / (Math.min(Lt, Lb) + 0.05));
+            // How much the ribbons stand out from the plain page background.
+            vis.push((Math.max(Lpage, Lb) + 0.05) / (Math.min(Lpage, Lb) + 0.05));
           }
           ratios.sort((a, b) => a - b);
+          vis.sort((a, b) => a - b);
           const need = large ? 3 : 4.5;
           const below = ratios.filter((r) => r < need).length / ratios.length;
-          return { min: ratios[0], p5: ratios[Math.floor(ratios.length * 0.05)], median: ratios[Math.floor(ratios.length / 2)], below };
-        }, { b64: buf.toString("base64"), color: meta.color, large: t.large });
+          return { min: ratios[0], p5: ratios[Math.floor(ratios.length * 0.05)], median: ratios[Math.floor(ratios.length / 2)], below, vis: vis[Math.floor(vis.length * 0.95)] };
+        }, { b64: buf.toString("base64"), color: meta.color, bg: meta.bg, large: t.large });
 
         const file = `${OUT}/${vp.name}-${theme}-${t.sel.replace(/[^a-z0-9]+/gi, "_")}-${pos}.png`;
         rows.push({ vp: vp.name, theme, sel: t.sel, pos, color: meta.color, ...stats, file });
@@ -116,14 +123,17 @@ await browser.close();
 const agg = {};
 for (const r of rows) {
   const k = `${r.vp}|${r.theme}|${r.sel}`;
-  const a = (agg[k] ??= { min: Infinity, p5: Infinity, median: Infinity, below: 0, worstPos: null, color: r.color, n: 0 });
+  const a = (agg[k] ??= { min: Infinity, p5: Infinity, median: Infinity, below: 0, worstPos: null, color: r.color, n: 0, vis: 0 });
   a.n++;
+  a.vis = Math.max(a.vis, r.vis);
   if (r.p5 < a.p5) { a.p5 = r.p5; a.worstPos = r.pos; }
   a.min = Math.min(a.min, r.min);
   a.median = Math.min(a.median, r.median);
   a.below = Math.max(a.below, r.below);
 }
-console.log("vp | theme | selector | color | min | p5 | median(min) | max%below | worstPos | n");
+// vis = p95 contrast of the background against the plain page colour: how
+// visible the ribbons still are behind that text (1 = invisible).
+console.log("vp | theme | selector | color | min | p5 | median(min) | max%below | worstPos | n | vis");
 for (const [k, a] of Object.entries(agg)) {
-  console.log(`${k.replace(/\|/g, " | ")} | ${a.color} | ${a.min.toFixed(2)} | ${a.p5.toFixed(2)} | ${a.median.toFixed(2)} | ${(a.below * 100).toFixed(1)}% | ${a.worstPos} | ${a.n}`);
+  console.log(`${k.replace(/\|/g, " | ")} | ${a.color} | ${a.min.toFixed(2)} | ${a.p5.toFixed(2)} | ${a.median.toFixed(2)} | ${(a.below * 100).toFixed(1)}% | ${a.worstPos} | ${a.n} | ${a.vis.toFixed(2)}`);
 }

@@ -56,7 +56,12 @@
   text-wrap: balance;
 }
 
+.hero__content .eyebrow {
+  text-shadow: var(--text-halo);
+}
+
 .hero__headline {
+  text-shadow: var(--text-halo);
   max-width: 620px;
   margin-top: 24px;
   color: var(--text-secondary);

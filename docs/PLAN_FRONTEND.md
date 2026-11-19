@@ -72,14 +72,87 @@ Lo que queda tras la corrección (0.2–0.5 %) corresponde al trazo decorativo `
 
 ---
 
+## Plan: paleta del fondo ambiental (ambos temas)
+
+Con el halo y el nuevo color de los eyebrows ya aplicados, el contraste que queda depende del color de las cintas. Este plan cambia solo los tokens `--ribbon-*` y conserva la composición, el número de hebras, la animación, los halos y el estilo de cada tema: violeta, magenta y azul neón en oscuro; azul pizarra tipo plano técnico en claro.
+
+### Presupuesto de luminancia
+
+Un texto de luminancia relativa `Lt` cumple 4.5:1 sobre un píxel de cinta de luminancia `Lb` solo si `Lb` está por debajo (tema oscuro) o por encima (tema claro) de un límite. `Lb` es el color de la cinta ya mezclado con `--bg` según la opacidad de su grupo. Valores calculados con los tokens actuales:
+
+| Tema | Texto que manda | Límite para el píxel de cinta | Cintas hoy (grupo principal) |
+|---|---|---|---|
+| Oscuro | `--text-secondary` `#b0c0d2` (L 0.516) | L ≤ **0.076** | L 0.114–0.141: no cumple |
+| Oscuro | `--accent-bright` (eyebrow) `#bad4f5` (L 0.641) | L ≤ 0.104 | no cumple |
+| Claro | `--text-secondary` `#2a3848` (L 0.038) | L ≥ **0.345** | L 0.217–0.335: no cumple |
+| Claro | `--accent-bright` (eyebrow) `#123661` (L 0.036) | L ≥ 0.338 | no cumple |
+| Claro | `--text-tertiary` `#425264` (L 0.081) | L ≥ 0.540 | no cumple |
+
+**Regla propuesta:** la luminancia mezclada de cada `--ribbon-*` con la opacidad del grupo principal debe ser **≤ 0.075 en oscuro** y **≥ 0.42 en claro** (este último deja margen sobre 0.345). Con esos valores, las cintas siguen contrastando unas 2.3:1 (oscuro) y 1.95:1 (claro) con `--bg`, así que siguen viéndose.
+
+### Candidatas medidas
+
+Probé dos paletas inyectando CSS en la página y midiendo con `scripts/contrast.mjs` (con el halo ya aplicado). Las comparé con capturas a 1440 px. La columna `vis` indica cuánto destacan las cintas detrás del texto (1.00 = invisibles).
+
+| Variante | Qué cambia | p5 de eyebrows de sección, escritorio (oscuro / claro) | `.footer__role` móvil claro (% bajo 4.5:1) | `vis` detrás de los subtítulos (oscuro / claro) |
+|---|---|---|---|---|
+| Actual | — | 6.15–7.29 / 5.16–5.60 | 7.9 % | 1.79–2.12 / 1.91–2.08 |
+| **A: recolorear (recomendada)** | Mismo tono, más oscuro y saturado en oscuro; más claro en claro | **8.61–8.92 / 6.59–6.67** | **0.2 %** | 1.46–1.52 / 1.61–1.63 |
+| B: bajar opacidades | Mismos colores; `--ribbon-opacity-*` en 0.40/0.20/0.25 (oscuro) y 0.50/0.40/0.38 (claro) | 9.30–9.65 / 6.59–6.82 | 0.1 % | 1.35–1.40 / 1.57–1.63 |
+
+Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conservan más presencia y color, sobre todo en oscuro, donde la B las deja grisáceas y apagadas. El 0.2–1.6 % que queda por debajo del umbral es igual en las tres variantes, así que no viene de las cintas (ver la tarea de verificación más abajo).
+
+### Alta
+
+- [ ] **Recolorear las cintas del tema oscuro**
+  * **Diagnóstico:** En `src/assets/styles/_tokens.scss` (`:root`), `--ribbon-1: #d44dff`, `--ribbon-2: #9a5cff` y `--ribbon-3: #5f8fd6`, con `--ribbon-opacity-main: 0.72`, dan píxeles de cinta con L entre 0.114 y 0.141, por encima del límite de 0.076. Detrás del eyebrow hay píxeles de apenas 3.0-3.7:1.
+  * **Acción:** Cambiar solo estos tres valores en `:root`: `--ribbon-1: #ae00e6`, `--ribbon-2: #7f30ff` y `--ribbon-3: #2f67b9`. Son el mismo tono y la misma saturación HSL, con la luminosidad ajustada para que la mezcla quede en L ≤ 0.075. No tocar `--ribbon-opacity-*`, `--ambient-*` ni `--sheen-*`.
+  * **Resultado esperado:** `node scripts/contrast.mjs` en tema oscuro da un p5 de 8.6 o más en los eyebrows de sección de escritorio y `vis` de 1.4 o más (las cintas se siguen viendo). En `npm run shots` (oscuro), el degradado violeta, magenta y azul se reconoce igual que antes.
+
+- [ ] **Recolorear las cintas del tema claro**
+  * **Diagnóstico:** En `_tokens.scss` (bloque `.main-container.light-mode, body.theme-light`), `--ribbon-1: #6d7fa3`, `--ribbon-2: #7d8fad` y `--ribbon-3: #4f6f96`, con opacidad 0.85, dan píxeles de cinta con L entre 0.217 y 0.335, por debajo del límite de 0.345. `#4f6f96` tiene casi la misma luminancia que `--text-tertiary`, por eso `.footer__role` falla en un 7.9 %.
+  * **Acción:** Cambiar en ese bloque `--ribbon-1: #a39fc6` (pizarra lavanda, para que haga eco del violeta del tema oscuro), `--ribbon-2: #9fb0cc` y `--ribbon-3: #8ca6c8`. Mantener `--ribbon-opacity-*` y el trazo más grueso de `.light-mode .ambient__ribbon` (`AmbientBackground.scss`).
+  * **Resultado esperado:** En tema claro, los eyebrows de sección de escritorio dan un p5 de 6.5 o más, `.footer__role` en móvil baja al 0.5 % o menos de píxeles bajo umbral y `vis` queda en 1.4 o más. En las capturas, el fondo se sigue leyendo como un plano técnico azul pizarra.
+
+### Media
+
+- [ ] **Ajustar a ojo la presencia de las cintas sin salirse del presupuesto**
+  * **Diagnóstico:** La paleta A reduce `vis` detrás de los subtítulos de unos 2.0 a unos 1.5. Es lo esperado, pero la presencia final del fondo es una decisión visual que la medición no resuelve.
+  * **Acción:** Con la paleta A aplicada, revisar el hero y dos secciones en ambos temas, a 1440 y 390 px. Si las cintas se ven demasiado tenues: en oscuro, subir `--ribbon-opacity-upper` y `--ribbon-opacity-lower`, que no pasan por detrás de los subtítulos y quedan por debajo de 0.5; en claro, subir el trazo de `.ambient__ribbon--upper` y `--lower` de 1.2 px a 1.35 px. No subir la luminancia ni la opacidad del grupo principal.
+  * **Resultado esperado:** Queda aprobada una configuración en la que `node scripts/contrast.mjs` mantiene el p5 de todos los textos en 4.5 o más (en `h2`, 3 o más) y `vis` en 1.4 o más.
+
+- [ ] **Medir de nuevo el texto sobre vidrio con la nueva paleta**
+  * **Diagnóstico:** Las cintas se ven a través de las tarjetas `.glass`. Cambiar su color modifica el fondo efectivo del texto que está sobre vidrio, que cubre la tarea *Auditar el contraste del texto sobre vidrio en ambos temas* de `PLAN_TECNICO.md`.
+  * **Acción:** Ejecutar esa tarea después de recolorear las cintas, no antes.
+  * **Resultado esperado:** La auditoría se registra con la paleta definitiva.
+
+- [ ] **Identificar el 1-1.6 % de píxeles que fallan con cualquier paleta**
+  * **Diagnóstico:** `.hero__headline` (1.6 % en escritorio) y `.section-heading > p:last-child` (alrededor del 1 % en móvil) mantienen el mismo porcentaje bajo umbral con la paleta actual, con la A y con la B. Por lo tanto, no lo causan las cintas. Las causas posibles son el barrido `.ambient__sheen` en el hero o píxeles de otro elemento dentro del recuadro medido.
+  * **Acción:** Ejecutar `node scripts/contrast.mjs`, abrir los recortes de `screenshots/contrast/*hero__headline*` y `*p_last_child*`, y localizar los píxeles oscuros o claros. Si es el sheen, comprobar que la mezcla de `--sheen-a` y `--sheen-b` con las cintas no supere el presupuesto; si es otro elemento, ajustar el recuadro que mide el script.
+  * **Resultado esperado:** Se encuentra la causa y, si corresponde, se abre una tarea con el selector concreto. El script deja de mostrar ese residuo o queda documentado como falso positivo.
+
+- [ ] **Documentar la regla de luminancia de las cintas**
+  * **Diagnóstico:** `AGENTS.md` (sección "Tema visual") dice que el fondo sigue la estética de `bg-dark.png` y `bg-light.png`, pero no pone ningún límite de contraste. Sin esa regla, un ajuste futuro de `--ribbon-*` puede volver a romper la legibilidad.
+  * **Acción:** Agregar a `AGENTS.md` y como comentario sobre los `--ribbon-*` de `_tokens.scss` lo siguiente: "Mezclada con `--bg` según la opacidad del grupo principal, cada cinta debe quedar en L ≤ 0.075 (oscuro) y L ≥ 0.42 (claro); verificar con `node scripts/contrast.mjs`".
+  * **Resultado esperado:** La regla aparece en ambos archivos, y el chequeo después de cada tarea incluye el script cuando se tocan `--ribbon-*`.
+
+### Baja
+
+- [ ] **Atenuar más las cintas con `prefers-contrast: more`**
+  * **Diagnóstico:** No hay ninguna regla `prefers-contrast` en el proyecto. Quien pide más contraste ve las mismas cintas que el resto.
+  * **Acción:** En `_tokens.scss`, agregar `@media (prefers-contrast: more)` con `--ribbon-opacity-main` al 60 % de su valor en ambos bloques (oscuro 0.43, claro 0.51) y `--sheen-a` y `--sheen-b` en `transparent`. El vidrio y los halos se mantienen.
+  * **Resultado esperado:** Con DevTools > Rendering emulando `prefers-contrast: more`, las cintas se ven tenues pero presentes, y `node scripts/contrast.mjs` (con la emulación agregada al contexto) da un p5 de 7 o más en los eyebrows.
+
+---
+
 ## Prioridad ALTA
 
-- [ ] **Agregar un halo de legibilidad a los textos que van directo sobre el fondo**
+- [x] **Agregar un halo de legibilidad a los textos que van directo sobre el fondo**
   * **Diagnóstico:** `.eyebrow`, `.section-heading > p:last-child`, `.hero__headline`, `.footer__role` y `.footer__bottom p` (`src/index.scss`, `Main.scss`, `Footer.scss`) no tienen ninguna separación de las cintas animadas. Con el texto al 70 % de la altura de la pantalla, hasta un 18.6 % del fondo de un eyebrow queda por debajo de 4.5:1 (ver la tabla).
   * **Acción:** 1) En los dos bloques de `_tokens.scss`, agregar `--text-halo: 0 0 2px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);`. Usar `var(--bg)` hace que el halo cambie solo con el tema. 2) Aplicar `text-shadow: var(--text-halo);` a esos cinco selectores. 3) No aplicarlo a los textos dentro de `.glass`, que ya tienen su propia superficie. El halo es difuso y translúcido, así que las cintas siguen viéndose alrededor del texto.
   * **Resultado esperado:** `node scripts/contrast.mjs` deja los eyebrows de sección en 0.5 % o menos de píxeles bajo umbral y con p5 de 5 o más, en ambos temas y viewports. Además, a simple vista las cintas se ven igual fuera del área del texto (comparar con `npm run shots`).
 
-- [ ] **Separar el color de los eyebrows del de las cintas**
+- [x] **Separar el color de los eyebrows del de las cintas**
   * **Diagnóstico:** `.eyebrow` (`src/index.scss`) usa `--accent`, del mismo tono y luminosidad que `--ribbon-3` y `--ribbon-2`. Así el texto de 0.72 rem se confunde con las hebras que lo cruzan.
   * **Acción:** En `.eyebrow`, cambiar `color: var(--accent)` por `color: var(--accent-bright)` (`#bad4f5` en oscuro, `#123661` en claro). Las dos variantes ya existen en ambos temas, así que no hace falta crear tokens. Dejar `.eyebrow::before` con `--accent-line`. Esto afecta también a los eyebrows de `.contact-panel` y `.cv-card`, que están sobre vidrio, con un contraste igual o mayor.
   * **Resultado esperado:** El p5 del eyebrow del hero pasa de 4.31 a 5.84 en claro y de 5.64 a 8.01 en oscuro (escritorio), medido con `node scripts/contrast.mjs`. El tono sigue siendo de la familia del acento.
@@ -135,7 +208,7 @@ Lo que queda tras la corrección (0.2–0.5 %) corresponde al trazo decorativo `
 
 - [ ] **Subir el contraste de `.footer__role` en tema claro**
   * **Diagnóstico:** `.footer__role` (`Footer.scss`) usa `--text-tertiary` (`#425264` en claro), con una luminosidad casi igual a la de las cintas claras. En móvil, con el texto al 70 % de la altura, el 18.1 % de su fondo queda por debajo de 4.5:1. Con el halo de la tarea de Prioridad Alta baja al 6.7 %, que sigue siendo demasiado.
-  * **Acción:** Cambiar el color de `.footer__role` a `var(--text-secondary)` y mantener el `text-shadow: var(--text-halo)`. Hacerlo después de *Agregar un halo de legibilidad a los textos que van directo sobre el fondo*.
+  * **Acción:** Primero aplicar *Recolorear las cintas del tema claro*, que en la medición ya lo baja al 0.2 %. Solo si después sigue por encima del 1 %, cambiar el color de `.footer__role` a `var(--text-secondary)` y mantener el `text-shadow: var(--text-halo)`.
   * **Resultado esperado:** `node scripts/contrast.mjs` deja `.footer__role` en el 1 % o menos de píxeles bajo umbral en móvil, en ambos temas.
 
 - [ ] **Incorporar la medición de contraste sobre el fondo como script del proyecto**
@@ -296,7 +369,7 @@ Lo que queda tras la corrección (0.2–0.5 %) corresponde al trazo decorativo `
 
 ## Orden sugerido de ejecución
 
-0. **Contraste sobre el fondo:** halo de legibilidad, luego color de los eyebrows y luego `.footer__role`. Medir con `node scripts/contrast.mjs` antes y después de cada paso.
+0. **Contraste sobre el fondo:** halo de legibilidad y color de los eyebrows (hechos). Después: recolorear las cintas del tema oscuro, luego las del tema claro, luego el ajuste visual y luego documentar la regla de luminancia. `.footer__role` solo si sigue fallando; al final, volver a medir el texto sobre vidrio. Medir con `node scripts/contrast.mjs` antes y después de cada paso.
 1. **Accesibilidad base:** foco sin `border-radius`, nombre accesible del logo y `aria-expanded`.
 2. **Área táctil:** crear el token `--touch-target` y luego barra, iconos sociales y `IconButton`.
 3. **Interacción:** hover solo con puntero, icono de premios con foco y un enlace por tarjeta de premio.

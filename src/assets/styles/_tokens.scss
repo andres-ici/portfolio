@@ -93,6 +93,9 @@
     rgba(12, 19, 28, 0.94) 100%
   );
   --grain-opacity: 0.045;
+  /* Soft legibility halo for text painted straight over the ribbon field
+     (no glass behind it). Built from --bg, so it is redefined per theme. */
+  --text-halo: 0 0 2px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);
 
   --font-display: "Manrope", "Segoe UI", system-ui, sans-serif;
   --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -174,6 +177,7 @@ body.theme-light {
     rgba(227, 237, 247, 0.96) 100%
   );
   --grain-opacity: 0.04;
+  --text-halo: 0 0 2px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);
 }
 
 /* Keep the same frosted glass on small screens, with a slightly lower blur

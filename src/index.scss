@@ -131,11 +131,17 @@ button {
   line-height: 1.8;
 }
 
+/* Section headings sit straight over the ambient ribbons, not over glass. */
+.section-heading .eyebrow,
+.section-heading>p:last-child {
+  text-shadow: var(--text-halo);
+}
+
 .eyebrow {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--accent);
+  color: var(--accent-bright);
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 500;
