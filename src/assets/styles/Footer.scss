@@ -50,7 +50,8 @@
 .footer__role {
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 500;
   letter-spacing: 0.1em;
   line-height: 1.5;
   text-transform: uppercase;
@@ -99,7 +100,7 @@
 
 .footer__bottom p {
   color: var(--text-tertiary);
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   line-height: 1.6;
 }
 
@@ -118,7 +119,8 @@
   flex: 0 0 auto;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }

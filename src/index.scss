@@ -125,7 +125,7 @@ button {
   text-wrap: balance;
 }
 
-.section-heading > p:last-child {
+.section-heading>p:last-child {
   max-width: 620px;
   font-size: 1rem;
   line-height: 1.8;
@@ -156,13 +156,11 @@ button {
   width: min(calc(100% - (var(--page-gutter) * 2)), var(--page-max));
   height: 1px;
   margin-inline: auto;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--hairline) 10%,
-    var(--hairline) 90%,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      var(--hairline) 10%,
+      var(--hairline) 90%,
+      transparent);
 }
 
 .sr-only {

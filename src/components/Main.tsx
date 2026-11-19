@@ -15,7 +15,6 @@ function Main() {
           <div className="hero__portrait-frame glass">
             <img src={avatar} alt="Retrato de Andrés Carrasco Inostroza" />
           </div>
-          <span className="hero__badge">Titulado 2025 · UFRO</span>
         </div>
 
         <div className="hero__content">

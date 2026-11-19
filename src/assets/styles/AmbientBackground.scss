@@ -94,6 +94,20 @@
   stroke-width: 1px;
 }
 
+/* The light palette has a thinner contrast budget against pale glass, so the
+   blueprint field gets a heavier stroke instead of extra chroma. */
+.light-mode .ambient__ribbon,
+body.theme-light .ambient__ribbon {
+  stroke-width: 1.35px;
+}
+
+.light-mode .ambient__ribbon--upper,
+.light-mode .ambient__ribbon--lower,
+body.theme-light .ambient__ribbon--upper,
+body.theme-light .ambient__ribbon--lower {
+  stroke-width: 1.2px;
+}
+
 /* --------------------------------------------------------------------------
    Soft colour blooms
    -------------------------------------------------------------------------- */
