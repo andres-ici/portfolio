@@ -146,6 +146,96 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
 
 ---
 
+## Plan: rediseño de «Experiencia profesional y académica»
+
+**Problema:** la sección se ve grande y tosca, y muestra poca información. Las medidas salen de una captura con Playwright de la página actual.
+
+| Medida | 1440 px | 390 px |
+|---|---|---|
+| Alto de la sección `#history` | 1917 px (unas 2 pantallas) | 2459 px (unas 3 pantallas) |
+| Alto de la lista `.timeline` | 1349 px | 2040 px |
+| Ancho de cada tarjeta / ancho útil de la descripción | 1048 px / 820 px (quedan unos 200 px vacíos a la derecha) | 296 px |
+
+**Por qué se ve así** (`src/components/Timeline.tsx` y `src/assets/styles/Timeline.scss`):
+
+1. **Es una sola columna a todo el ancho.** Siete tarjetas `.glass` de 1048 px con una o dos líneas de texto cada una: mucho relleno y poco contenido.
+2. **Los adornos no dicen nada.** Las siete tarjetas repiten el mismo icono de maletín (`faBriefcase`), y la numeración `.timeline__number` («01…07») repite el orden que ya da la `<ol>`.
+3. **Faltan datos que la interfaz podría mostrar.** No hay tipo (industria, proyecto, docencia, representación), ni duración, ni tecnologías. Las fechas son texto libre («Ene 2025 – Jun 2025»), así que no se puede calcular nada a partir de ellas.
+4. **En móvil**, el marcador de 37 px y el `padding-left: 54px` dejan la tarjeta en 296 px, y el texto se parte en muchas líneas.
+
+### La versión anterior (antes del commit `0a2d8db`)
+
+La plantilla usaba `react-vertical-timeline-component`: una línea central con tarjetas alternadas a izquierda y derecha y la fecha en el lado opuesto de cada tarjeta. Desde 1170 px hacia abajo pasaba a una sola columna. Las tarjetas eran blancas y opacas, con una flecha hacia la línea y un icono de maletín morado (`#5000ca`), y todo el estilo estaba inline.
+
+- **Lo que se rescata:** la alternancia en dos lados, que aprovecha el ancho, y la idea de unir cada tarjeta con la línea.
+- **Lo que no:** la librería. Sus estilos opacos e inline chocan con el sistema de vidrio y con los tokens, y `PLAN_TECNICO.md` ya pide *Quitar la dependencia sin uso `react-vertical-timeline-component`*. La alternancia se reproduce con CSS Grid nativo.
+
+### Prototipos medidos
+
+Probé cada prototipo inyectando CSS sobre el marcado actual, sin cambiar el JSX.
+
+| Variante | Lista a 1440 px | Lista a 390 px | Observación |
+|---|---|---|---|
+| Actual | 1349 px | 2040 px | — |
+| **A: escalonado en dos columnas con línea central (escritorio)** | **928 px (−31 %)** | sin cambio | Recupera la alternancia de la versión anterior; cada tarjeta mide 516 px y se lee mejor |
+| B: fecha en una columna lateral dentro de la tarjeta | 995 px (−26 %) | 1920 px | Más plano y monótono; desperdicia la columna de la fecha |
+| **C: móvil compacto (punto en vez de icono y menos relleno)** | sin cambio | **1817 px (−11 %)** | La tarjeta pasa de 296 a 322 px |
+
+**Recomendación:** A en escritorio, C en móvil y las tareas de información de abajo. Con la descripción plegable en móvil (tarea de prioridad media), una estimación sin medir deja la lista móvil por debajo de 1000 px.
+
+### Alta
+
+- [ ] **Tipar y estructurar los datos de `experience`**
+  * **Diagnóstico:** En `Timeline.tsx`, `experience` es un arreglo sin tipo, con la fecha como texto libre (`date: "Ene 2025 – Jun 2025"`). Sin datos estructurados no se puede calcular la duración ni elegir un icono según el tipo.
+  * **Acción:** 1) En el mismo `Timeline.tsx` (los datos siguen en el componente, como pide `AGENTS.md`), definir `type ExperienceKind = "industria" | "proyecto" | "docencia" | "representacion"` e `interface ExperienceItem { start: string; end: string; kind: ExperienceKind; title: string; organization: string; description: string; tech?: string[] }`, con `start` y `end` en formato `"AAAA-MM"`. 2) Convertir las 7 entradas sin cambiar sus textos. 3) Agregar una función `formatMonth("2025-01")` que devuelva `"Ene 2025"` usando un arreglo propio de abreviaturas (así no depende de cómo cada navegador formatee `Intl` en `es-CL`). 4) Tipo propuesto para cada entrada, **que debes confirmar**: Collahuasi → `industria`; Representante Estudiantil → `representacion`; Seguimiento Solar, LIFIC Automatización y TI, y Chatbot IA → `proyecto`; las dos ayudantías → `docencia`.
+  * **Resultado esperado:** `npx tsc --noEmit` pasa y la sección muestra exactamente las mismas fechas que hoy (comparar con `npm run shots`).
+
+- [ ] **Escalonar la línea de tiempo en dos columnas en escritorio**
+  * **Diagnóstico:** `.timeline` es una columna flex con tarjetas de 1048 px. La lista mide 1349 px a 1440 px de ancho.
+  * **Acción:** 1) En `Timeline.scss`, dentro de `@media (min-width: 1024px)`: hacer `.timeline` un grid con `grid-template-columns: 1fr 1fr; column-gap: 88px`; mover `.timeline::before` a `left: 50%` con `translateX(-50%)`; ubicar los ítems impares en la columna 1 y los pares en la 2; poner `padding-left: 0` y `margin-bottom: 22px` en `.timeline__item`. 2) En `Timeline.tsx`, darle a cada `<li>` `style={{ gridRow: (index + 1) + " / span 2" }}`, que produce el escalonado sin depender de cuántas entradas haya. 3) Poner el marcador sobre la línea central: `right: -68px` en los impares y `left: -68px` en los pares, alineado con la fecha de su tarjeta. 4) El orden del DOM y de lectura sigue siendo cronológico; solo cambia la posición visual.
+  * **Resultado esperado:** A 1440 px, la lista mide unos 930 px o menos y la sección unos 1500 px o menos. Los marcadores quedan sobre la línea a la altura de la fecha de cada tarjeta. Tab sigue el orden cronológico. Entre 1024 y 1100 px ningún título se corta (verificar con DevTools); bajo 1024 px se mantiene una columna.
+
+- [ ] **Distinguir el tipo de cada experiencia con un icono y una etiqueta**
+  * **Diagnóstico:** `.timeline__marker` muestra siempre `faBriefcase`, que no aporta información.
+  * **Acción:** 1) Asignar un icono a cada `kind` con `@mui/icons-material`, que ya está instalado (alineado con *Unificar íconos en `@mui/icons-material` y quitar FontAwesome* de `PLAN_TECNICO.md`): `FactoryOutlined` (industria), `PrecisionManufacturingOutlined` (proyecto), `SchoolOutlined` (docencia) y `GroupsOutlined` (representación). 2) Dejar el icono con `aria-hidden` y agregar la etiqueta en texto («Industria», «Proyecto»…) como `<span className="timeline__kind">` dentro de `.timeline__meta`, con el estilo de `.chip-title`. Así la información no depende solo del icono. 3) Quitar el import de `faBriefcase`.
+  * **Resultado esperado:** Cada entrada muestra un icono y una etiqueta según su tipo, en ambos temas. El lector de pantalla lee la etiqueta y no el icono. `node scripts/contrast.mjs` da 4.5:1 o más para `.timeline__kind` (agregar el selector a `targets`).
+
+### Media
+
+- [ ] **Mostrar la duración junto a la fecha y quitar la numeración**
+  * **Diagnóstico:** `.timeline__number` («01…07») repite el orden de la `<ol>`, y la duración, que es lo que más información aporta, no aparece en ningún lado.
+  * **Acción:** 1) Agregar `durationLabel(start, end)`, que cuente los meses incluyendo los extremos y devuelva «6 meses» o «1 año 4 meses». 2) Reemplazar `<span className="timeline__number">` por `<span className="timeline__duration">` con ese texto. 3) Borrar `.timeline__number` del SCSS.
+  * **Resultado esperado:** «Ene 2025 – Jun 2025» muestra «6 meses» y «Ago 2020 – Ago 2022» muestra «2 años 1 mes». No queda `timeline__number` en `src/`.
+
+- [ ] **Compactar la línea de tiempo en móvil**
+  * **Diagnóstico:** Por debajo de 640 px, `.timeline__item` tiene `padding-left: 54px` y el marcador mide 37 px con icono. La tarjeta queda en 296 px y la lista en 2040 px a 390 px de ancho.
+  * **Acción:** En el `@media (max-width: 640px)` de `Timeline.scss`: poner `padding-left: 28px` en el ítem, `left: 5px` en `.timeline::before` y, en el marcador, un punto de 11 px (`background: var(--accent)`, `box-shadow: 0 0 0 4px var(--accent-soft)`) con el icono oculto. Además, `padding: 16px 18px` en la tarjeta y `gap: 12px` en la lista. La etiqueta de tipo (tarea de prioridad alta) sigue indicando el tipo.
+  * **Resultado esperado:** A 390 px, la lista mide unos 1820 px o menos y la tarjeta unos 320 px de ancho. El punto queda centrado sobre la línea en ambos temas.
+
+- [ ] **Hacer plegable la descripción en móvil (requiere aprobación de diseño)**
+  * **Diagnóstico:** Aun compacta, la lista móvil ocupa más de 2 pantallas, porque la descripción es lo que más alto suma.
+  * **Acción:** Solo por debajo de 640 px, mostrar fecha, título, organización y tipo, y dejar la descripción detrás de un `<button aria-expanded aria-controls>` («Ver detalle»), con su panel `id` y una transición de `grid-template-rows: 0fr → 1fr` que respete `prefers-reduced-motion`. En escritorio la descripción se sigue viendo siempre. No usar `<details>`, porque no permite controlar la versión de escritorio sin JS.
+  * **Resultado esperado:** A 390 px, con todo plegado, la lista mide unos 1000 px o menos (hay que medirlo). El botón mide 44 px o más, se opera con Enter y Espacio, y el lector de pantalla anuncia si está expandido o no.
+
+- [ ] **Mostrar las tecnologías de cada experiencia (requiere contenido)**
+  * **Diagnóstico:** `Expertise` ya muestra tecnologías con `.chips` y `.chip`, pero las experiencias no tienen ese dato. Además, `.chip` está definido en `Expertise.scss`, así que no se puede reutilizar sin duplicarlo.
+  * **Acción:** 1) Mover `.chips`, `.chip` y `.chip-title` de `Expertise.scss` a `_glass.scss` y cargarlos globalmente. 2) Si `item.tech` existe, mostrar los chips bajo la descripción. 3) **Tú agregas el contenido**: la lista `tech` de cada entrada (por ejemplo, PLC/DCS para Collahuasi o C/C++ para la ayudantía).
+  * **Resultado esperado:** Las entradas con `tech` muestran chips con el mismo estilo que Competencias, en ambos temas, y las que no lo tienen se ven igual que antes.
+
+### Baja
+
+- [ ] **Unir cada tarjeta con la línea central en escritorio**
+  * **Diagnóstico:** En la versión anterior, una flecha unía cada tarjeta con la línea. En la variante A, la tarjeta y el marcador quedan separados por 88 px de vacío.
+  * **Acción:** Agregar en `.timeline__item::after` (no en la tarjeta, porque `.glass--interactive` tiene `overflow: hidden`) un trazo horizontal de 1 px con `background: var(--accent-line)` desde el borde de la tarjeta hasta el marcador. Mostrarlo solo en `@media (min-width: 1024px)`.
+  * **Resultado esperado:** Cada tarjeta se ve conectada a su punto de la línea en ambos temas, y en móvil no aparece.
+
+- [ ] **Revisar la sección rediseñada en ambos temas y a 200 % de zoom**
+  * **Diagnóstico:** El nuevo layout cambia anchos y posiciones sobre el fondo ambiental. Se apoya en *Quitar `glass--interactive` de las tarjetas que no son interactivas*, que también afecta a `.timeline__card`.
+  * **Acción:** Revisar a 320, 390, 768, 1024, 1440 y 1920 px y con zoom al 200 % a 1280 px, en ambos temas. Ejecutar `node scripts/contrast.mjs` agregando `.timeline__kind` y `.timeline__duration` a `targets`, y `npm run shots`.
+  * **Resultado esperado:** No hay desbordes ni solapes, el contraste cumple el mínimo y las capturas quedan aprobadas.
+
+---
+
 ## Prioridad ALTA
 
 - [x] **Agregar un halo de legibilidad a los textos que van directo sobre el fondo**
@@ -371,6 +461,7 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
 ## Orden sugerido de ejecución
 
 0. **Contraste sobre el fondo:** halo de legibilidad y color de los eyebrows (hechos). Después: recolorear las cintas del tema oscuro, luego las del tema claro, luego el ajuste visual y luego documentar la regla de luminancia. `.footer__role` solo si sigue fallando; al final, volver a medir el texto sobre vidrio. Medir con `node scripts/contrast.mjs` antes y después de cada paso.
+0b. **Experiencia:** tipar los datos, luego el escalonado en escritorio, luego icono y etiqueta de tipo, luego duración, luego la versión móvil compacta; después, según lo que decidas, la descripción plegable, las tecnologías y el conector; al final, la revisión.
 1. **Accesibilidad base:** foco sin `border-radius`, nombre accesible del logo y `aria-expanded`.
 2. **Área táctil:** crear el token `--touch-target` y luego barra, iconos sociales y `IconButton`.
 3. **Interacción:** hover solo con puntero, icono de premios con foco y un enlace por tarjeta de premio.
