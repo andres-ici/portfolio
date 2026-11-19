@@ -104,12 +104,12 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
 
 ### Alta
 
-- [ ] **Recolorear las cintas del tema oscuro**
+- [x] **Recolorear las cintas del tema oscuro** — aplicado. Medición: eyebrows de sección en escritorio con p5 de 8.20–8.90, `vis` de 1.47–1.59.
   * **Diagnóstico:** En `src/assets/styles/_tokens.scss` (`:root`), `--ribbon-1: #d44dff`, `--ribbon-2: #9a5cff` y `--ribbon-3: #5f8fd6`, con `--ribbon-opacity-main: 0.72`, dan píxeles de cinta con L entre 0.114 y 0.141, por encima del límite de 0.076. Detrás del eyebrow hay píxeles de apenas 3.0-3.7:1.
   * **Acción:** Cambiar solo estos tres valores en `:root`: `--ribbon-1: #ae00e6`, `--ribbon-2: #7f30ff` y `--ribbon-3: #2f67b9`. Son el mismo tono y la misma saturación HSL, con la luminosidad ajustada para que la mezcla quede en L ≤ 0.075. No tocar `--ribbon-opacity-*`, `--ambient-*` ni `--sheen-*`.
   * **Resultado esperado:** `node scripts/contrast.mjs` en tema oscuro da un p5 de 8.6 o más en los eyebrows de sección de escritorio y `vis` de 1.4 o más (las cintas se siguen viendo). En `npm run shots` (oscuro), el degradado violeta, magenta y azul se reconoce igual que antes.
 
-- [ ] **Recolorear las cintas del tema claro**
+- [x] **Recolorear las cintas del tema claro** — aplicado. Medición: eyebrows de sección en escritorio con p5 de 6.18–6.67, `vis` de 1.61–1.74; `.footer__role` en móvil, 0.1 %.
   * **Diagnóstico:** En `_tokens.scss` (bloque `.main-container.light-mode, body.theme-light`), `--ribbon-1: #6d7fa3`, `--ribbon-2: #7d8fad` y `--ribbon-3: #4f6f96`, con opacidad 0.85, dan píxeles de cinta con L entre 0.217 y 0.335, por debajo del límite de 0.345. `#4f6f96` tiene casi la misma luminancia que `--text-tertiary`, por eso `.footer__role` falla en un 7.9 %.
   * **Acción:** Cambiar en ese bloque `--ribbon-1: #a39fc6` (pizarra lavanda, para que haga eco del violeta del tema oscuro), `--ribbon-2: #9fb0cc` y `--ribbon-3: #8ca6c8`. Mantener `--ribbon-opacity-*` y el trazo más grueso de `.light-mode .ambient__ribbon` (`AmbientBackground.scss`).
   * **Resultado esperado:** En tema claro, los eyebrows de sección de escritorio dan un p5 de 6.5 o más, `.footer__role` en móvil baja al 0.5 % o menos de píxeles bajo umbral y `vis` queda en 1.4 o más. En las capturas, el fondo se sigue leyendo como un plano técnico azul pizarra.
@@ -133,6 +133,7 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
 
 - [ ] **Documentar la regla de luminancia de las cintas**
   * **Diagnóstico:** `AGENTS.md` (sección "Tema visual") dice que el fondo sigue la estética de `bg-dark.png` y `bg-light.png`, pero no pone ningún límite de contraste. Sin esa regla, un ajuste futuro de `--ribbon-*` puede volver a romper la legibilidad.
+  * **Estado:** El comentario en `_tokens.scss` ya está agregado; falta `AGENTS.md`.
   * **Acción:** Agregar a `AGENTS.md` y como comentario sobre los `--ribbon-*` de `_tokens.scss` lo siguiente: "Mezclada con `--bg` según la opacidad del grupo principal, cada cinta debe quedar en L ≤ 0.075 (oscuro) y L ≥ 0.42 (claro); verificar con `node scripts/contrast.mjs`".
   * **Resultado esperado:** La regla aparece en ambos archivos, y el chequeo después de cada tarea incluye el script cuando se tocan `--ribbon-*`.
 
@@ -206,7 +207,7 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
 
 ## Prioridad MEDIA
 
-- [ ] **Subir el contraste de `.footer__role` en tema claro**
+- [x] **Subir el contraste de `.footer__role` en tema claro** — resuelto con la paleta A: 0.1 % de píxeles bajo umbral, sin cambiar su color.
   * **Diagnóstico:** `.footer__role` (`Footer.scss`) usa `--text-tertiary` (`#425264` en claro), con una luminosidad casi igual a la de las cintas claras. En móvil, con el texto al 70 % de la altura, el 18.1 % de su fondo queda por debajo de 4.5:1. Con el halo de la tarea de Prioridad Alta baja al 6.7 %, que sigue siendo demasiado.
   * **Acción:** Primero aplicar *Recolorear las cintas del tema claro*, que en la medición ya lo baja al 0.2 %. Solo si después sigue por encima del 1 %, cambiar el color de `.footer__role` a `var(--text-secondary)` y mantener el `text-shadow: var(--text-halo)`.
   * **Resultado esperado:** `node scripts/contrast.mjs` deja `.footer__role` en el 1 % o menos de píxeles bajo umbral en móvil, en ambos temas.

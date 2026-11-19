@@ -79,9 +79,12 @@
   --ambient-horizon: rgba(146, 88, 255, 0.18);
   --ambient-vignette: rgba(5, 8, 12, 0.62);
   --ambient-vignette-top: rgba(5, 8, 12, 0.4);
-  --ribbon-1: #d44dff;
-  --ribbon-2: #9a5cff;
-  --ribbon-3: #5f8fd6;
+  /* Same hue/saturation as the reference artwork, darker so that each ribbon
+     blended at --ribbon-opacity-main stays at relative luminance <= 0.075
+     (text over the ribbons keeps >= 4.5:1). Check: node scripts/contrast.mjs */
+  --ribbon-1: #ae00e6;
+  --ribbon-2: #7f30ff;
+  --ribbon-3: #2f67b9;
   --ribbon-opacity-main: 0.72;
   --ribbon-opacity-upper: 0.34;
   --ribbon-opacity-lower: 0.42;
@@ -163,9 +166,11 @@ body.theme-light {
   --ambient-horizon: rgba(240, 246, 252, 0.55);
   --ambient-vignette: rgba(196, 209, 224, 0.5);
   --ambient-vignette-top: rgba(203, 215, 229, 0.45);
-  --ribbon-1: #6d7fa3;
-  --ribbon-2: #7d8fad;
-  --ribbon-3: #4f6f96;
+  /* Lighter slate blueprint: blended at --ribbon-opacity-main each ribbon stays
+     at relative luminance >= 0.42 so dark text over it keeps >= 4.5:1. */
+  --ribbon-1: #a39fc6;
+  --ribbon-2: #9fb0cc;
+  --ribbon-3: #8ca6c8;
   --ribbon-opacity-main: 0.85;
   --ribbon-opacity-upper: 0.68;
   --ribbon-opacity-lower: 0.62;
