@@ -146,6 +146,83 @@
   }
 }
 
+/* Scroll entrance --------------------------------------------------------- */
+/* Same gesture as the original template (card slides in from its side with a
+   small overshoot, marker pops), with softer distances so the glass doesn't
+   jump. backwards fill keeps the 0% frame before start and releases transform
+   afterwards, so the glass hover lift still works. */
+
+.timeline--animate .timeline__item:not(.is-visible) .timeline__card,
+.timeline--animate .timeline__item:not(.is-visible) .timeline__marker {
+  opacity: 0;
+}
+
+.timeline--animate .timeline__item.is-visible .timeline__card {
+  animation: timeline-card-in-left 640ms var(--ease-out)
+    var(--timeline-delay, 0ms) backwards;
+}
+
+.timeline--animate .timeline__item.is-visible .timeline__marker {
+  animation: timeline-marker-in 560ms var(--ease-out)
+    calc(var(--timeline-delay, 0ms) + 60ms) backwards;
+}
+
+@media (min-width: 1024px) {
+  .timeline--animate .timeline__item:nth-child(even).is-visible .timeline__card {
+    animation-name: timeline-card-in-right;
+  }
+}
+
+@keyframes timeline-card-in-left {
+  0% {
+    opacity: 0;
+    transform: translate3d(-56px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(8px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes timeline-card-in-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(56px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-8px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes timeline-marker-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline--animate .timeline__item .timeline__card,
+  .timeline--animate .timeline__item .timeline__marker {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 @media (max-width: 640px) {
   .timeline {
     gap: 18px;
