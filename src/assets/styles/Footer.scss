@@ -24,21 +24,6 @@
   gap: 12px;
 }
 
-.footer__mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 auto;
-  border: 1px solid var(--glass-border);
-  border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent-bright);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.05em;
-}
-
 .footer__name {
   color: var(--text-primary);
   font-family: var(--font-display);

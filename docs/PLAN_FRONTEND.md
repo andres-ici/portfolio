@@ -163,7 +163,7 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
   * **Acción:** Borrar la línea `border-radius: 4px;` del bloque `:focus-visible` en `src/index.scss`. No agregar reglas por componente: en los navegadores actuales, `outline` ya sigue el `border-radius` del elemento.
   * **Resultado esperado:** Con Tab sobre "Ver CV" y sobre el icono de GitHub, el `border-radius` computado en DevTools sigue en `999px` y `50%`, y el contorno sigue la curva. Revisar en Chromium, Firefox y Safari, en ambos temas.
 
-- [ ] **Hacer que el nombre accesible del logo incluya su texto visible**
+- [x] **Hacer que el nombre accesible del logo incluya su texto visible** — resuelto al quitar la marca «AC». El botón muestra solo «Andrés Carrasco» en todas las anchuras y su nombre accesible es ese mismo texto; «Ir al inicio» quedó como `title`.
   * **Diagnóstico:** En `src/components/Navigation.tsx` (líneas 141-143), el botón `.navbar__brand` muestra "AC Andrés Carrasco", pero su `aria-label="Ir al inicio"` reemplaza ese texto. No cumple WCAG 2.5.3 *Label in Name* (nivel A): quien usa control por voz no puede activarlo diciendo lo que ve.
   * **Acción:** Quitar `aria-label` del botón y poner `aria-hidden="true"` en `<span className="navbar__mark">AC</span>`, para que el nombre accesible sea "Andrés Carrasco". Por debajo de 900 px `.navbar__name` se oculta con `display: none`, lo que deja el botón sin nombre; en ese rango, cambiar ese `display: none` por la técnica de `.sr-only`.
   * **Resultado esperado:** En DevTools > Accessibility, el nombre del botón es "Andrés Carrasco" tanto a 1440 px como a 390 px.
@@ -312,7 +312,7 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
 ## Prioridad BAJA
 
 - [ ] **Mapear a tokens los radios fijos**
-  * **Diagnóstico:** Hay radios escritos a mano: 9 px en `.award__frame img`, 10 px en `.footer__mark`, 11 px en `.navbar__mark`, 14 px en `.skill__icon`, 15 px en `.award__frame`, 16 px en `.cv-card__icon` y `24px 0 0 24px` en `.nav-drawer__paper`. Al mismo tiempo, `--radius-sm` (10 px) y `--radius-md` (16 px) no se usan.
+  * **Diagnóstico:** Hay radios escritos a mano: 9 px en `.award__frame img`, 14 px en `.skill__icon`, 15 px en `.award__frame`, 16 px en `.cv-card__icon` y `24px 0 0 24px` en `.nav-drawer__paper`. Al mismo tiempo, `--radius-sm` (10 px) y `--radius-md` (16 px) no se usan.
   * **Acción:** Usar `--radius-sm` para 9, 10 y 11 px, `--radius-md` para 14, 15 y 16 px, y `--radius-lg` para el drawer (24 → 22 px). Si alguna diferencia se nota, crear un token intermedio en ambos bloques.
   * **Resultado esperado:** `grep -n "border-radius: [0-9]" src/assets/styles` solo devuelve `50%`, y las capturas no muestran cambios apreciables.
 
@@ -342,9 +342,9 @@ Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conser
   * **Resultado esperado:** En tema claro, el fondo computado de `body` en DevTools sigue siendo `rgb(237, 241, 245)`.
 
 - [ ] **Extraer una clase `.icon-tile` para los íconos en baldosa**
-  * **Diagnóstico:** `.navbar__mark`, `.footer__mark`, `.skill__icon`, `.cv-card__icon` y `.timeline__marker` repiten el mismo patrón (rejilla centrada, borde, radio, fondo `--accent-soft`, `inset` con `--glass-highlight` y color `--accent-bright`), con pequeñas variaciones de tamaño.
-  * **Acción:** Crear `.icon-tile` en `_glass.scss` con el patrón común y modificadores de tamaño (`--sm` 34-36 px, `--md` 48 px, `--lg` 58 px). Agregarla en los JSX y dejar en cada selector solo lo que lo distingue.
-  * **Resultado esperado:** Desaparece la duplicación en 5 archivos y las capturas no cambian.
+  * **Diagnóstico:** `.skill__icon`, `.cv-card__icon` y `.timeline__marker` repiten el mismo patrón (rejilla centrada, borde, radio, fondo `--accent-soft`, `inset` con `--glass-highlight` y color `--accent-bright`), con pequeñas variaciones de tamaño.
+  * **Acción:** Crear `.icon-tile` en `_glass.scss` con el patrón común y modificadores de tamaño (`--md` 48 px, `--lg` 58 px). Agregarla en los JSX y dejar en cada selector solo lo que lo distingue.
+  * **Resultado esperado:** Desaparece la duplicación en 3 archivos y las capturas no cambian.
 
 - [ ] **Extraer una clase `.icon-link` para los enlaces circulares**
   * **Diagnóstico:** `.hero__social` (`Main.scss`) y `.footer__socials a` (`Footer.scss`) son casi idénticos: círculo con `--hairline`, `hover` con `--accent-soft` y `--accent-line`, y `translateY(-2px)`.

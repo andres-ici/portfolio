@@ -11,7 +11,6 @@ function Footer() {
       <div className="footer__inner">
         <div className="footer__top">
           <div className="footer__brand">
-            <span className="footer__mark">AC</span>
             <div>
               <p className="footer__name">Andrés Carrasco Inostroza</p>
               <p className="footer__role">Ingeniero Civil Electrónico</p>

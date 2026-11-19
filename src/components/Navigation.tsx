@@ -140,9 +140,8 @@ function Navigation({ parentToChild, modeChange }: any) {
           <button
             className="navbar__brand"
             onClick={scrollToTop}
-            aria-label="Ir al inicio"
+            title="Ir al inicio"
           >
-            <span className="navbar__mark">AC</span>
             <span className="navbar__name">Andrés Carrasco</span>
           </button>
 
