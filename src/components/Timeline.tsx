@@ -79,6 +79,7 @@ function Timeline() {
             <li
               className="timeline__item"
               key={`${item.date}-${item.title}`}
+              style={{ "--timeline-row": index + 1 } as React.CSSProperties}
             >
               <span className="timeline__marker" aria-hidden="true">
                 <FontAwesomeIcon icon={faBriefcase} />
