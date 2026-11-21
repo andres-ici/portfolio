@@ -21,6 +21,10 @@ CI=true npm test -- --watchAll=false src/App.test.tsx -t "renders the portfolio 
 
 - Build command `npm run build`; output `build`; Node 20. Es 100% estático: no agregar Workers, Functions, API routes ni SSR.
 - Mantener `public/_redirects` con `/* /index.html 200` para el fallback SPA.
+- `public/_headers` define caché (`/static/*` inmutable, HTML con revalidación), headers de seguridad y la CSP. `script-src` lleva el hash `sha256` del script inline de `public/index.html` ya minificado; `style-src` necesita `'unsafe-inline'` por MUI/Emotion.
+- `postbuild` ejecuta `scripts/check-csp.mjs`: falla el build si un script inline no está en la CSP (imprime el hash correcto para pegarlo en `_headers`) o si se generaron source maps. Cualquier cambio en el script inline obliga a actualizar el hash.
+- `.env.production` fija `GENERATE_SOURCEMAP=false`. Para analizar el bundle en local: `GENERATE_SOURCEMAP=true npm run build`.
+- Si se activan en Cloudflare funciones que inyectan scripts externos (Web Analytics, Rocket Loader), hay que ampliar la CSP o el sitio las bloqueará.
 - Respetar límites del plan gratuito (20.000 archivos, 25 MiB por archivo): optimizar imágenes (preferir `.webp`) y evitar dependencias pesadas.
 - `homepage` es `"."` (rutas relativas). No cambiarlo sin revisar el hosting.
 - Variables `REACT_APP_*` se inlinean en build; no hay variables de entorno en runtime.

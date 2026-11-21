@@ -24,7 +24,7 @@
 
 ## Prioridad ALTA
 
-- [ ] **Crear `public/_headers` con política de caché**
+- [x] **Crear `public/_headers` con política de caché**
   * **Diagnóstico:** No existe `public/_headers`. Cloudflare Pages aplica su caché por defecto, que no aprovecha que CRA pone hash en `static/js`, `static/css` y `static/media`, y no garantiza que `index.html` se revalide tras cada despliegue.
   * **Acción:**
     1. Crear `public/_headers` (CRA lo copia tal cual a `build/`).
@@ -45,7 +45,7 @@
     3. Ejecutar `npm run build` y confirmar que `build/_headers` existe.
   * **Resultado esperado:** En un despliegue de preview, `curl -sI https://<preview>.pages.dev/static/js/main.<hash>.js` devuelve `cache-control: public, max-age=31536000, immutable` y `curl -sI https://<preview>.pages.dev/` devuelve `max-age=0, must-revalidate`.
 
-- [ ] **Agregar headers HTTP de seguridad básicos**
+- [x] **Agregar headers HTTP de seguridad básicos**
   * **Diagnóstico:** El sitio no envía headers de seguridad: no hay `_headers`.
   * **Acción:** En `public/_headers` agregar una regla global al inicio del archivo:
     ```
@@ -59,7 +59,7 @@
     No agregar `Strict-Transport-Security` en este archivo: activarlo desde el panel de Cloudflare (SSL/TLS → Edge Certificates → HSTS), que es gratuito, solo si el dominio propio ya funciona siempre por HTTPS.
   * **Resultado esperado:** `curl -sI https://<preview>.pages.dev/` muestra los cinco headers. securityheaders.com da al menos nota B sin CSP.
 
-- [ ] **Agregar Content-Security-Policy compatible con el build**
+- [x] **Agregar Content-Security-Policy compatible con el build**
   * **Diagnóstico:** No hay CSP. El build tiene un script inline (el anti-flash de tema en `public/index.html`), y MUI/Emotion inyecta `<style>` en tiempo de ejecución. Una CSP estricta sin considerar ambos rompe el tema y los estilos de MUI.
   * **Acción:**
     1. Ejecutar `npm run build`.
@@ -72,12 +72,12 @@
     4. Documentar en `AGENTS.md` (sección Tema visual) que **todo cambio en el script inline de `public/index.html` obliga a recalcular el hash**.
   * **Resultado esperado:** En el preview, la consola del navegador no muestra violaciones de CSP; el tema claro persiste al recargar sin flash; el `Drawer` y los `Tooltip` de MUI se ven con estilos correctos; el grano SVG (`data:` URI) del fondo ambiental sigue visible.
 
-- [ ] **No publicar source maps en producción**
+- [x] **No publicar source maps en producción**
   * **Diagnóstico:** `build/` incluye `main.*.js.map`, `453.*.chunk.js.map` y `main.*.css.map`. Exponen el código fuente completo y suman archivos y peso al despliegue.
-  * **Acción:** En Cloudflare Pages → proyecto → Settings → Variables and Secrets (entorno *Production* y *Preview*), agregar `GENERATE_SOURCEMAP=false`. No crear `.env.production` para que el build local siga generando mapas (los necesita la tarea de análisis de bundle).
-  * **Resultado esperado:** El log del build en Cloudflare muestra la variable; `https://<sitio>/static/js/main.<hash>.js.map` responde 404 o devuelve `index.html` en lugar del mapa.
+  * **Acción (aplicada):** `.env.production` con `GENERATE_SOURCEMAP=false`, versionado en el repo para que aplique en Cloudflare sin configurar el panel. Las variables del shell tienen prioridad, así que para analizar el bundle en local basta `GENERATE_SOURCEMAP=true npm run build`. `scripts/check-csp.mjs` (postbuild) falla si aparecen `.map` sin esa variable.
+  * **Resultado esperado:** El build no genera archivos `.map` en `build/static`; `https://<sitio>/static/js/main.<hash>.js.map` devuelve `index.html` (fallback SPA) en lugar del mapa.
 
-- [ ] **Sacar el hero (`Main`) del componente `Reveal`**
+- [x] **Sacar el hero (`Main`) del componente `Reveal`**
   * **Diagnóstico:** En `src/App.tsx`, `<Main />` está dentro de `<Reveal>`. `Reveal.scss` arranca con `opacity: 0` y solo pasa a visible cuando un `IntersectionObserver` dispara tras montar. El `h1` y el retrato, que son el elemento LCP, quedan invisibles un tramo extra después de cargar el JS, y la transición dura 680 ms. Esto empeora el LCP.
   * **Acción:**
     1. En `src/App.tsx`, reemplazar `<Reveal><Main /></Reveal>` por `<Main />`.

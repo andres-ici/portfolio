@@ -30,6 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "node scripts/check-csp.mjs",
     "test": "react-scripts test",
     "shots": "node scripts/shots.mjs",
     "eject": "react-scripts eject",

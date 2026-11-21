@@ -67,9 +67,7 @@ function App() {
       <Navigation parentToChild={{ mode }} modeChange={handleModeChange} />
       <div className="page-content">
         <main>
-          <Reveal>
-            <Main />
-          </Reveal>
+          <Main />
           <Reveal delay={40}>
             <Expertise />
           </Reveal>
