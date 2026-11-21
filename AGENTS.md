@@ -1,0 +1,54 @@
+# AGENTS.md
+
+Portafolio personal de Andrés Carrasco. React 18 + TypeScript + SCSS sobre Create React App (`react-scripts` 5), sin backend. Contenido y UI en español.
+
+## Comandos
+
+```bash
+npm install                 # Node 20 recomendado
+npm start                   # http://localhost:3000
+npm run build               # genera build/ (ignorado por git)
+npx tsc --noEmit            # typecheck; no hay script npm dedicado
+CI=true npm test -- --watchAll=false
+CI=true npm test -- --watchAll=false src/App.test.tsx -t "renders the portfolio heading"
+```
+
+- No hay script de lint: ESLint (`react-app`) corre dentro de `start`/`build`.
+- No ejecutar `npm run eject` ni migrar el toolchain sin pedido explícito.
+- `build/` es artefacto de salida: no editarlo ni commitearlo.
+
+## Despliegue: Cloudflare Pages (plan gratuito)
+
+- Build command `npm run build`; output `build`; Node 20. Es 100% estático: no agregar Workers, Functions, API routes ni SSR.
+- Mantener `public/_redirects` con `/* /index.html 200` para el fallback SPA.
+- `public/_headers` define caché (`/static/*` inmutable, HTML con revalidación), headers de seguridad y la CSP. `script-src` lleva el hash `sha256` del script inline de `public/index.html` ya minificado; `style-src` necesita `'unsafe-inline'` por MUI/Emotion.
+- `postbuild` ejecuta `scripts/check-csp.mjs`: falla el build si un script inline no está en la CSP (imprime el hash correcto para pegarlo en `_headers`) o si se generaron source maps. Cualquier cambio en el script inline obliga a actualizar el hash.
+- `.env.production` fija `GENERATE_SOURCEMAP=false`. Para analizar el bundle en local: `GENERATE_SOURCEMAP=true npm run build`.
+- Si se activan en Cloudflare funciones que inyectan scripts externos (Web Analytics, Rocket Loader), hay que ampliar la CSP o el sitio las bloqueará.
+- Respetar límites del plan gratuito (20.000 archivos, 25 MiB por archivo): optimizar imágenes (preferir `.webp`) y evitar dependencias pesadas.
+- `homepage` es `"."` (rutas relativas). No cambiarlo sin revisar el hosting.
+- Variables `REACT_APP_*` se inlinean en build; no hay variables de entorno en runtime.
+
+## Arquitectura
+
+- `src/index.tsx` monta `App.tsx`; `App.tsx` compone las secciones mediante el barrel `src/components/index.js` (es `.js` por `allowJs: true`). Al agregar/quitar una sección, actualizar ese barrel.
+- Cada componente importa su propio SCSS desde `src/assets/styles/`; `tokens` y `glass` se cargan globalmente en `src/index.scss` con `@use`.
+- Navegación por scroll a anclas, sin router. Los `id` de sección (`top`, `expertise`, `history`, `projects`, `contact`) deben coincidir con `navItems` en `Navigation.tsx`.
+- Contenido editable en los componentes (`Main`, `Expertise`, `Timeline`, `Project`, `Contact`). Datos SEO/`<title>` en `public/index.html`.
+- Imágenes y CV en `src/assets/images/`; se importan desde el código para que CRA les ponga hash.
+
+## Tema visual
+
+- Modo oscuro por defecto; el claro se activa con la clase `.main-container.light-mode`.
+- Tokens en `src/assets/styles/_tokens.scss`: todo token nuevo debe definirse en `:root` y en `.main-container.light-mode` (el bloque también cubre `body.theme-light` para portales MUI como el `Drawer`).
+- Persistencia en `localStorage` con la clave `portfolio-theme`. El script inline de `public/index.html` evita el flash de tema; si cambia la lógica de tema en `App.tsx`, sincronizar ese script, `meta[name="theme-color"]` y `documentElement`.
+- Sistema "liquid glass" en `_glass.scss`: reutilizar clases `.glass`, `.glass--interactive`, `.glass-button` en lugar de duplicar estilos.
+- Fondo ambiental en `AmbientBackground.tsx` / `AmbientBackground.scss`: cintas SVG generadas desde puntos de control (estética de `bg-dark.png`/`bg-light.png`) más halos, brillo y grano. Sus colores usan tokens `--ribbon-*`, `--ambient-*` y `--sheen-*`. El SVG es estático: animar solo los contenedores externos (`translate`/`rotate`), nunca los `<g>`, para que el dibujo se rasterice una vez; se pausa al salir del hero y con la pestaña oculta.
+- El vidrio mantiene `backdrop-filter` en móvil con un radio menor (`--glass-blur`); solo se desactiva con `prefers-reduced-transparency`. El `Drawer` usa `--drawer-surface` porque es un portal sobre `<body>` y necesita un fondo algo más opaco que las tarjetas.
+- Respetar `prefers-reduced-motion` y `prefers-reduced-transparency` ya contemplados en los estilos. El parallax del fondo también se desactiva por JS con `prefers-reduced-motion`.
+
+## Tests
+
+- Jest + React Testing Library (jsdom); setup en `src/setupTests.ts`.
+- Existe una sola prueba (`src/App.test.tsx`) que verifica el `h1`. Si cambia el nombre del titular, actualizarla.
+- Los warnings de `act()` deprecado y de `babel-preset-react-app` son preexistentes; el test pasa.

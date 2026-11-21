@@ -1,0 +1,220 @@
+/* --------------------------------------------------------------------------
+   Fonts (self-hosted, latin subset)
+   -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("../fonts/manrope-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("../fonts/inter-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-400-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-500-latin.woff2") format("woff2");
+}
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #070a0f;
+  --bg-elevated: #0c131b;
+  --bg-deep: #05080c;
+
+  --text-primary: #f3f6fa;
+  --text-secondary: #b0c0d2;
+  --text-tertiary: #8ea0b4;
+
+  --accent: #8cb3e2;
+  --accent-bright: #bad4f5;
+  --accent-deep: #4d76a4;
+  --accent-soft: rgba(140, 179, 226, 0.15);
+  --accent-line: rgba(140, 179, 226, 0.4);
+
+  --hairline: rgba(255, 255, 255, 0.12);
+  --hairline-strong: rgba(255, 255, 255, 0.22);
+
+  --glass-gradient: linear-gradient(
+    135deg,
+    rgba(20, 29, 41, 0.74) 0%,
+    rgba(13, 20, 30, 0.7) 45%,
+    rgba(8, 13, 21, 0.66) 100%
+  );
+  --glass-solid: rgba(17, 25, 35, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-border-strong: rgba(255, 255, 255, 0.28);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 24px 70px rgba(0, 0, 0, 0.38),
+    0 2px 10px rgba(0, 0, 0, 0.18);
+  --glass-blur: 13px;
+  --glass-saturate: 140%;
+
+  --ambient-1: rgba(146, 90, 255, 0.24);
+  --ambient-2: rgba(92, 138, 208, 0.2);
+  --ambient-3: rgba(214, 79, 255, 0.14);
+  --ambient-horizon: rgba(146, 88, 255, 0.18);
+  --ambient-vignette: rgba(5, 8, 12, 0.62);
+  --ambient-vignette-top: rgba(5, 8, 12, 0.4);
+  /* Same hue/saturation as the reference artwork, darker so that each ribbon
+     blended at --ribbon-opacity-main stays at relative luminance <= 0.075
+     (text over the ribbons keeps >= 4.5:1). Check: node scripts/contrast.mjs */
+  --ribbon-1: #ae00e6;
+  --ribbon-2: #7f30ff;
+  --ribbon-3: #2f67b9;
+  --ribbon-opacity-main: 0.72;
+  --ribbon-opacity-upper: 0.34;
+  --ribbon-opacity-lower: 0.42;
+  --sheen-a: rgba(203, 170, 255, 0.12);
+  --sheen-b: rgba(255, 255, 255, 0.07);
+  --drawer-surface: linear-gradient(
+    135deg,
+    rgba(20, 28, 39, 0.96) 0%,
+    rgba(12, 19, 28, 0.94) 100%
+  );
+  --grain-opacity: 0.045;
+  /* Soft legibility halo for text painted straight over the ribbon field
+     (no glass behind it). Built from --bg, so it is redefined per theme. */
+  --text-halo: 0 0 2px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);
+
+  --font-display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  --page-max: 1120px;
+  --page-gutter: clamp(20px, 4vw, 40px);
+  --section-space: clamp(84px, 11vw, 144px);
+  --nav-height: 72px;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 560ms;
+}
+
+.main-container.light-mode,
+body.theme-light {
+  color-scheme: light;
+
+  --bg: #edf1f5;
+  --bg-elevated: #f7f9fb;
+  --bg-deep: #e3e9ef;
+
+  --text-primary: #091119;
+  --text-secondary: #2a3848;
+  --text-tertiary: #425264;
+
+  --accent: #1c4a7e;
+  --accent-bright: #123661;
+  --accent-deep: #0c2545;
+  --accent-soft: rgba(28, 74, 126, 0.12);
+  --accent-line: rgba(28, 74, 126, 0.38);
+
+  --hairline: rgba(12, 20, 29, 0.14);
+  --hairline-strong: rgba(12, 20, 29, 0.24);
+
+  /* Smoked porcelain glass: comfortable opacity that calms the blueprint field
+     beneath and guarantees strong reading contrast on all text tiers. */
+  --glass-gradient: linear-gradient(
+    135deg,
+    rgba(244, 248, 253, 0.8) 0%,
+    rgba(235, 242, 249, 0.74) 48%,
+    rgba(224, 233, 244, 0.7) 100%
+  );
+  --glass-solid: rgba(238, 244, 250, 0.96);
+  --glass-border: rgba(74, 100, 132, 0.32);
+  --glass-border-strong: rgba(56, 82, 114, 0.52);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 26px 64px rgba(31, 52, 78, 0.16),
+    0 2px 10px rgba(31, 52, 78, 0.1);
+  --glass-blur: 18px;
+  --glass-saturate: 150%;
+
+  --ambient-1: rgba(109, 127, 163, 0.22);
+  --ambient-2: rgba(125, 143, 173, 0.24);
+  --ambient-3: rgba(79, 111, 150, 0.15);
+  --ambient-horizon: rgba(240, 246, 252, 0.55);
+  --ambient-vignette: rgba(196, 209, 224, 0.5);
+  --ambient-vignette-top: rgba(203, 215, 229, 0.45);
+  /* Lighter slate blueprint: blended at --ribbon-opacity-main each ribbon stays
+     at relative luminance >= 0.42 so dark text over it keeps >= 4.5:1. */
+  --ribbon-1: #a39fc6;
+  --ribbon-2: #9fb0cc;
+  --ribbon-3: #8ca6c8;
+  --ribbon-opacity-main: 0.85;
+  --ribbon-opacity-upper: 0.68;
+  --ribbon-opacity-lower: 0.62;
+  --sheen-a: rgba(255, 255, 255, 0.55);
+  --sheen-b: rgba(255, 255, 255, 0.38);
+  --drawer-surface: linear-gradient(
+    135deg,
+    rgba(243, 248, 253, 0.97) 0%,
+    rgba(227, 237, 247, 0.96) 100%
+  );
+  --grain-opacity: 0.04;
+  --text-halo: 0 0 2px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);
+}
+
+/* Keep the same frosted glass on small screens, with a slightly lower blur
+   radius to ease the cost over the animated background. */
+@media (max-width: 768px) {
+  :root {
+    --glass-blur: 10px;
+  }
+
+  .main-container.light-mode,
+  body.theme-light {
+    --glass-blur: 14px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-gradient: linear-gradient(
+      135deg,
+      rgba(17, 25, 35, 0.97),
+      rgba(12, 19, 27, 0.97)
+    );
+    --glass-blur: 0px;
+  }
+
+  .main-container.light-mode,
+  body.theme-light {
+    --glass-gradient: linear-gradient(
+      135deg,
+      rgba(240, 245, 251, 0.98),
+      rgba(228, 237, 247, 0.98)
+    );
+    --glass-blur: 0px;
+  }
+}

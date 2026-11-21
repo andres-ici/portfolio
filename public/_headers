@@ -1,0 +1,26 @@
+# Cloudflare Pages: headers HTTP del sitio estático.
+# Si cambia el script inline de public/index.html, recalcular el hash de
+# script-src: `npm run build` falla (scripts/check-csp.mjs) e imprime el nuevo.
+# style-src necesita 'unsafe-inline' por los <style> que inyecta MUI/Emotion.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-GUOGfFH0s7yXP/IGrlyLRR3zPUym+1pP16u6E8cSKQQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'
+
+# Assets con hash de CRA: nunca cambian de contenido.
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML de entrada: siempre revalidar para tomar el último despliegue.
+/
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.json
+  Cache-Control: public, max-age=86400

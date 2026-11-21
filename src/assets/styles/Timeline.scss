@@ -1,38 +1,263 @@
-.vertical-timeline span {
-    color: white;
-    font-family: 'Courier Prime', monospace;
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.vertical-timeline p {
-    color: rgb(39, 40, 34);
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 23px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--accent-line) 0%,
+    var(--hairline) 18%,
+    var(--hairline) 82%,
+    transparent 100%
+  );
 }
 
-.vertical-timeline-element p {
-    color: rgb(39, 40, 34);
+.timeline__item {
+  position: relative;
+  padding-left: 72px;
 }
 
-.vertical-timeline-element h3 {
-    color: rgb(39, 40, 34);
+.timeline__marker {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 47px;
+  height: 47px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 6px var(--accent-soft),
+    inset 0 1px 0 var(--glass-highlight);
+  color: var(--accent-bright);
 }
 
-.vertical-timeline-element h4 {
-    color: rgb(39, 40, 34);
+.timeline__marker svg {
+  width: 15px;
+  height: 15px;
 }
 
-.vertical-timeline-element span {
-    color: rgb(39, 40, 34);
+.timeline__card {
+  padding: 22px 26px;
+  border-radius: var(--radius-lg);
 }
 
-.vertical-timeline-element .vertical-timeline-element-date {
-    color: white;
+.timeline__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.svg-inline--fa {
-    color: white;
+.timeline__date {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
-@media screen and (max-width: 1170px) {
-    .vertical-timeline-element .vertical-timeline-element-date {
-        color: rgb(39, 40, 34);
-    }
+.timeline__number {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+.timeline__card h3 {
+  margin-top: 10px;
+  font-size: 1.16rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.timeline__organization {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.timeline__description {
+  max-width: 820px;
+  margin-top: 12px;
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+/* Desktop: two staggered columns around a central line, like the original
+   template. Each item spans two grid rows starting at its own index
+   (--timeline-row, set inline), so neighbours overlap by half a card. DOM and
+   reading order stay chronological; only the visual position changes. */
+@media (min-width: 1024px) {
+  .timeline {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 88px;
+    row-gap: 0;
+  }
+
+  .timeline::before {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .timeline__item {
+    grid-row: var(--timeline-row, auto) / span 2;
+    padding-left: 0;
+    margin-bottom: 22px;
+  }
+
+  .timeline__item:nth-child(odd) {
+    grid-column: 1;
+  }
+
+  .timeline__item:nth-child(even) {
+    grid-column: 2;
+  }
+
+  /* 88px gap / 2 + 47px marker / 2 ≈ 68px puts the marker on the line. */
+  .timeline__item:nth-child(odd) .timeline__marker {
+    left: auto;
+    right: -68px;
+  }
+
+  .timeline__item:nth-child(even) .timeline__marker {
+    left: -68px;
+  }
+}
+
+/* Scroll entrance --------------------------------------------------------- */
+/* Same gesture as the original template (card slides in from its side with a
+   small overshoot, marker pops), with softer distances so the glass doesn't
+   jump. backwards fill keeps the 0% frame before start and releases transform
+   afterwards, so the glass hover lift still works. */
+
+.timeline--animate .timeline__item:not(.is-visible) .timeline__card,
+.timeline--animate .timeline__item:not(.is-visible) .timeline__marker {
+  opacity: 0;
+}
+
+.timeline--animate .timeline__item.is-visible .timeline__card {
+  animation: timeline-card-in-left 640ms var(--ease-out)
+    var(--timeline-delay, 0ms) backwards;
+}
+
+.timeline--animate .timeline__item.is-visible .timeline__marker {
+  animation: timeline-marker-in 560ms var(--ease-out)
+    calc(var(--timeline-delay, 0ms) + 60ms) backwards;
+}
+
+@media (min-width: 1024px) {
+  .timeline--animate .timeline__item:nth-child(even).is-visible .timeline__card {
+    animation-name: timeline-card-in-right;
+  }
+}
+
+@keyframes timeline-card-in-left {
+  0% {
+    opacity: 0;
+    transform: translate3d(-56px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(8px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes timeline-card-in-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(56px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-8px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes timeline-marker-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline--animate .timeline__item .timeline__card,
+  .timeline--animate .timeline__item .timeline__marker {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .timeline {
+    gap: 18px;
+  }
+
+  .timeline::before {
+    left: 18px;
+  }
+
+  .timeline__item {
+    padding-left: 54px;
+  }
+
+  .timeline__marker {
+    top: 18px;
+    width: 37px;
+    height: 37px;
+    box-shadow: 0 0 0 4px var(--accent-soft),
+      inset 0 1px 0 var(--glass-highlight);
+  }
+
+  .timeline__marker svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .timeline__card {
+    padding: 20px;
+  }
+
+  .timeline__meta {
+    align-items: flex-start;
+  }
+
+  .timeline__card h3 {
+    font-size: 1.08rem;
+  }
 }

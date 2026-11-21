@@ -1,0 +1,485 @@
+# Diagnóstico frontend y plan de acción — Portafolio
+
+> Alcance: **solo la capa de interfaz** (componentes, estilos, layout, interacción, tematización y accesibilidad). No se evalúan contenido, redacción, proyectos ni branding, ni despliegue, headers, caché o build: eso está en `docs/PLAN_TECNICO.md`.
+
+## Restricciones que todo cambio debe respetar
+
+- **Liquid Glass intacto:** se mantienen transparencias, `backdrop-filter`, bordes especulares (`.glass::before`), capas translúcidas y fondo ambiental. Solo se admiten superficies opacas en los fallbacks que ya existen (`prefers-reduced-transparency` y `@supports not (backdrop-filter)`).
+- **100 % estático en Cloudflare Pages Free:** sin backend, Functions ni SSR, y sin dependencias nuevas. Se resuelve con CSS nativo, SCSS y lo que ya trae el proyecto (MUI incluido).
+- **Sin cambios de toolchain:** nada de `eject`, Vite, Tailwind ni CSS-in-JS nuevo. Si una tarea lo necesitara, se marca como *requiere aprobación*.
+- **Tokens:** todo token nuevo se define en `:root` y en `.main-container.light-mode, body.theme-light` de `src/assets/styles/_tokens.scss` (regla de `AGENTS.md`).
+- **Contenido en componentes:** `AGENTS.md` fija que los datos editables (`skillGroups`, `experience`, `awards`) viven en cada componente, así que no se propone sacarlos a otros archivos.
+
+### Relación con `docs/PLAN_TECNICO.md`
+
+Estas tareas de ese plan **no se repiten** aquí. Cuando una tarea de este documento depende de alguna, la cita por su nombre: *Sacar el hero (`Main`) del componente `Reveal`*, *Agregar un enlace "Saltar al contenido"*, *Auditar el contraste del texto sobre vidrio en ambos temas*, *Medir el costo de GPU del vidrio sobre el fondo animado*, *Reducir el blur solo en dispositivos táctiles de gama baja*, *Liberar `will-change` cuando el fondo está en calma o pausado*, *Escribir el parallax directamente en `transform`*, *Evitar trabajo por evento de scroll en `Navigation.tsx`*, *Tipar las props de `Navigation`*, *Limpiar el temporizador del botón copiar en `Contact.tsx`*, *Eliminar el componente muerto `FadeIn.tsx`*, *Quitar el import de efecto lateral de FontAwesome regular en `Timeline.tsx`*, *Unificar íconos en `@mui/icons-material` y quitar FontAwesome*, *Usar enlaces de ancla en la navegación*, *Usar `aria-current="location"` en la navegación interna*, *Agregar un test de persistencia del tema*.
+
+> ⚠️ **Corrección a `PLAN_TECNICO.md`:** la tarea *Eliminar la regla vacía `.glass > * {}`* parte de un dato erróneo. En `src/assets/styles/_glass.scss` (líneas 40-43) la regla **no está vacía**: contiene `position: relative; z-index: 2;`, que coloca el contenido por encima del borde especular `.glass::before` (`z-index: 1`). Si se borra, el brillo del borde queda encima del texto y de los enlaces. No hay que ejecutar esa tarea tal como está escrita.
+
+### Qué se verificó (19-11-2026, rama `feature/visual-overhaul`)
+
+| Qué se revisó | Cómo | Resultado |
+|---|---|---|
+| Todos los componentes de UI (`Navigation`, `Main`, `Expertise`, `Timeline`, `Project`, `Contact`, `Footer`, `Reveal`, `AmbientBackground`, `App`) | Lectura completa | Hallazgos en las tareas de abajo |
+| Todos los SCSS (`_tokens`, `_glass`, `index.scss` y los 10 de componente) | Lectura completa | Hallazgos en las tareas de abajo |
+| `public/index.html` (script inline de tema, `theme-color`, viewport) | Lectura | El script no aplica la clase de tema ni actualiza `theme-color`; el viewport no lleva `viewport-fit` |
+| Tokens definidos pero sin uso | Búsqueda de `var(--token)` en `src/` | Sin uso: `--duration-slow`, `--radius-sm`, `--radius-md` |
+| Tokens presentes en un tema y ausentes en el otro | Comparación de los bloques `:root` y claro | Bien resuelto: los tokens que dependen del tema están en ambos bloques |
+| Clases CSS sin uso | Búsqueda de cada clase en `src/components` y `App.tsx` | Sin uso: `.glass-rule` (`_glass.scss:171`) y `.section-rule` (`index.scss:155`) |
+| `!important` | Búsqueda | 33 apariciones en `src/assets/styles` + `src/index.scss` (16 en `Navigation.scss`) |
+| Colores, radios y duraciones fijos | Búsqueda de `rgba(`, hex, `border-radius:` y `ms` | 13 sombras o velos `rgba` fuera de tokens; 6 radios fijos; 5 duraciones fijas |
+| Puntos de quiebre | Búsqueda de `@media (max-width` | 10 valores distintos: 420, 480, 560, 640, 700, 760, 768, 780, 900 y 980 px |
+| Tamaños de fuente | Búsqueda de `font-size` | Unos 24 valores distintos, varios por debajo de 0.7rem |
+| Hover en táctiles | Búsqueda de `hover: hover` / `pointer:` | 0 apariciones |
+| `aria-expanded`, `forced-colors`, `prefers-contrast`, `safe-area` | Búsqueda | 0 apariciones |
+| `scroll-margin-top` | Búsqueda | Solo en `.section`, `.hero` y `.footer` |
+| `prefers-reduced-motion` y `prefers-reduced-transparency` | Lectura | Bien resuelto: regla global en `index.scss`, `Reveal.scss`, fondo, vidrio y drawer; el JS de `Reveal`, `Navigation` y `AmbientBackground` también lo respeta |
+| Fondo ambiental: animaciones | Lectura de `AmbientBackground.scss` | Bien resuelto: solo anima `transform` y `opacity` sobre contenedores y nunca los `<g>`; se pausa en calma y con la pestaña oculta. Lo pendiente ya está en `PLAN_TECNICO.md` |
+| Prefijo `-webkit-backdrop-filter` y fallback `@supports` | Lectura de `_glass.scss` y `Navigation.scss` | Bien resuelto en `.glass`, `.glass-button` y `.nav-drawer__paper` |
+| Jerarquía de encabezados y textos alternativos | Lectura del JSX | Bien resuelto: un `h1`, luego `h2` por sección y `h3` por tarjeta; todas las `<img>` llevan `alt` |
+| Tipos | `npx tsc --noEmit` | Pasa |
+| Contraste de los textos que se pintan directamente sobre el fondo ambiental | Medición con Playwright (`scripts/contrast.mjs`) contra `npm start`: 13 textos × 5 posiciones de scroll × 2 temas × 2 viewports, comparando píxel a píxel el color del texto con el fondo capturado sin el texto | Fallan los *eyebrows* y `.footer__role`; los `h2` pasan. Detalle en la sección siguiente |
+| Render real (foco, tamaños medidos, flash de tema, forced-colors, Safari) | No ejecutado: no se puede verificar leyendo código | Queda como tareas de **medición** |
+| `npm run build`, `npm test`, `npm run shots` | No ejecutados en este diagnóstico (no hubo cambios de código) | Son el chequeo a repetir después de cada tarea |
+
+---
+
+## Análisis: contraste de los subtítulos sobre las cintas animadas
+
+**Síntoma:** al hacer scroll, algunos subtítulos pierden legibilidad cuando pasan sobre las líneas del fondo, en ambos temas.
+
+**Por qué ocurre:**
+
+1. **Hay texto sin vidrio detrás.** `.section-heading` (eyebrow, `h2` y párrafo introductorio), `.hero__content` y el pie se pintan directamente sobre `.ambient`, sin ninguna superficie `.glass` debajo. Como `.ambient` es `position: fixed`, cada subtítulo atraviesa todas las alturas de la pantalla mientras se hace scroll.
+2. **Hay una banda densa fija en la pantalla.** La cinta principal (`RIBBON_SPECS[0]` en `AmbientBackground.tsx`: 27 hebras, `--ribbon-opacity-main` de 0.72 en oscuro y 0.85 en claro) cruza el viewport aproximadamente entre el 65 % y el 85 % de su altura. En todas las mediciones, el peor caso se dio con el texto al **70 % de la altura de la pantalla**. Cuando la animación se detiene (`.ambient--calm`) la banda queda quieta, pero los textos siguen pasando por encima.
+3. **Los eyebrows son del mismo color que las cintas.** `.eyebrow` usa `--accent` (`#8cb3e2` en oscuro y `#1c4a7e` en claro), del mismo tono y luminosidad que las cintas (`#5f8fd6` y `#9a5cff` en oscuro, `#4f6f96` y `#6d7fa3` en claro). Además es texto pequeño: 0.72 rem, monoespaciado y de peso 500. Las hebras atraviesan las letras y se confunden con ellas.
+4. **El tema claro tiene cintas más marcadas.** Usa más opacidad (0.85 frente a 0.72) y trazo más grueso (1.35 px frente a 1.15 px), y por eso sale peor en las mediciones.
+
+**Medición (peor caso por texto, `scripts/contrast.mjs`).** "% bajo umbral" es la parte del recuadro del texto donde el fondo queda por debajo de 4.5:1 (o de 3:1 en los `h2`). "p5" es el contraste del 5 % de píxeles de fondo más desfavorable.
+
+| Texto | Tema | Hoy: p5 / % bajo umbral | Con halo y eyebrow `--accent-bright`: p5 / % |
+|---|---|---|---|
+| Eyebrows de sección (`#expertise`, `#history`, `#projects`), escritorio | Claro | 3.66–4.00 / **10.5–18.6 %** | 5.07–5.52 / 0.2 % |
+| Eyebrows de sección, escritorio | Oscuro | 4.42–4.85 / **3.2–5.8 %** | 6.65–7.27 / 0.2 % |
+| Eyebrows de sección, móvil | Claro | 4.16–5.18 / **0.6–11.3 %** | 5.95–7.42 / 0.5 % |
+| Eyebrow del hero, escritorio | Claro / Oscuro | 4.31 / 6.5 % · 5.64 / 2.8 % | 5.84 / 1.2 % · 8.01 / 0.1 % |
+| `.footer__role`, móvil | Claro / Oscuro | 3.70 / **18.1 %** · 4.25 / 8.4 % | 4.37 / 6.7 % · 5.14 / 0.9 % |
+| Párrafo introductorio (`.section-heading > p:last-child`) | Ambos | 4.98–6.86 / 0–1.1 % | 5.39–7.39 / 0–1.1 % |
+| `h2` de sección | Ambos | ≥ 8.36 / 0 % | No hace falta cambiarlo |
+| `.timeline__date`, `.footer__bottom p` | Ambos | ≥ 5.38 / 0 % | No hace falta cambiarlo |
+
+Lo que queda tras la corrección (0.2–0.5 %) corresponde al trazo decorativo `.eyebrow::before`, que entra en el recuadro medido. El párrafo introductorio en móvil conserva cerca del 1 % de píxeles aislados por debajo del umbral, con o sin halo; está dentro de lo esperable para hebras de 1 px, pero hay que confirmarlo a ojo. Esta medición cubre texto **sin** vidrio. El texto sobre vidrio está en *Auditar el contraste del texto sobre vidrio en ambos temas* (`PLAN_TECNICO.md`). axe y Lighthouse no pueden medir ninguno de los dos casos porque no evalúan fondos SVG ni `backdrop-filter`.
+
+---
+
+## Plan: paleta del fondo ambiental (ambos temas)
+
+Con el halo y el nuevo color de los eyebrows ya aplicados, el contraste que queda depende del color de las cintas. Este plan cambia solo los tokens `--ribbon-*` y conserva la composición, el número de hebras, la animación, los halos y el estilo de cada tema: violeta, magenta y azul neón en oscuro; azul pizarra tipo plano técnico en claro.
+
+### Presupuesto de luminancia
+
+Un texto de luminancia relativa `Lt` cumple 4.5:1 sobre un píxel de cinta de luminancia `Lb` solo si `Lb` está por debajo (tema oscuro) o por encima (tema claro) de un límite. `Lb` es el color de la cinta ya mezclado con `--bg` según la opacidad de su grupo. Valores calculados con los tokens actuales:
+
+| Tema | Texto que manda | Límite para el píxel de cinta | Cintas hoy (grupo principal) |
+|---|---|---|---|
+| Oscuro | `--text-secondary` `#b0c0d2` (L 0.516) | L ≤ **0.076** | L 0.114–0.141: no cumple |
+| Oscuro | `--accent-bright` (eyebrow) `#bad4f5` (L 0.641) | L ≤ 0.104 | no cumple |
+| Claro | `--text-secondary` `#2a3848` (L 0.038) | L ≥ **0.345** | L 0.217–0.335: no cumple |
+| Claro | `--accent-bright` (eyebrow) `#123661` (L 0.036) | L ≥ 0.338 | no cumple |
+| Claro | `--text-tertiary` `#425264` (L 0.081) | L ≥ 0.540 | no cumple |
+
+**Regla propuesta:** la luminancia mezclada de cada `--ribbon-*` con la opacidad del grupo principal debe ser **≤ 0.075 en oscuro** y **≥ 0.42 en claro** (este último deja margen sobre 0.345). Con esos valores, las cintas siguen contrastando unas 2.3:1 (oscuro) y 1.95:1 (claro) con `--bg`, así que siguen viéndose.
+
+### Candidatas medidas
+
+Probé dos paletas inyectando CSS en la página y midiendo con `scripts/contrast.mjs` (con el halo ya aplicado). Las comparé con capturas a 1440 px. La columna `vis` indica cuánto destacan las cintas detrás del texto (1.00 = invisibles).
+
+| Variante | Qué cambia | p5 de eyebrows de sección, escritorio (oscuro / claro) | `.footer__role` móvil claro (% bajo 4.5:1) | `vis` detrás de los subtítulos (oscuro / claro) |
+|---|---|---|---|---|
+| Actual | — | 6.15–7.29 / 5.16–5.60 | 7.9 % | 1.79–2.12 / 1.91–2.08 |
+| **A: recolorear (recomendada)** | Mismo tono, más oscuro y saturado en oscuro; más claro en claro | **8.61–8.92 / 6.59–6.67** | **0.2 %** | 1.46–1.52 / 1.61–1.63 |
+| B: bajar opacidades | Mismos colores; `--ribbon-opacity-*` en 0.40/0.20/0.25 (oscuro) y 0.50/0.40/0.38 (claro) | 9.30–9.65 / 6.59–6.82 | 0.1 % | 1.35–1.40 / 1.57–1.63 |
+
+Recomiendo la **A**. Da casi el mismo contraste que la B, pero las cintas conservan más presencia y color, sobre todo en oscuro, donde la B las deja grisáceas y apagadas. El 0.2–1.6 % que queda por debajo del umbral es igual en las tres variantes, así que no viene de las cintas (ver la tarea de verificación más abajo).
+
+### Alta
+
+- [x] **Recolorear las cintas del tema oscuro** — aplicado. Medición: eyebrows de sección en escritorio con p5 de 8.20–8.90, `vis` de 1.47–1.59.
+  * **Diagnóstico:** En `src/assets/styles/_tokens.scss` (`:root`), `--ribbon-1: #d44dff`, `--ribbon-2: #9a5cff` y `--ribbon-3: #5f8fd6`, con `--ribbon-opacity-main: 0.72`, dan píxeles de cinta con L entre 0.114 y 0.141, por encima del límite de 0.076. Detrás del eyebrow hay píxeles de apenas 3.0-3.7:1.
+  * **Acción:** Cambiar solo estos tres valores en `:root`: `--ribbon-1: #ae00e6`, `--ribbon-2: #7f30ff` y `--ribbon-3: #2f67b9`. Son el mismo tono y la misma saturación HSL, con la luminosidad ajustada para que la mezcla quede en L ≤ 0.075. No tocar `--ribbon-opacity-*`, `--ambient-*` ni `--sheen-*`.
+  * **Resultado esperado:** `node scripts/contrast.mjs` en tema oscuro da un p5 de 8.6 o más en los eyebrows de sección de escritorio y `vis` de 1.4 o más (las cintas se siguen viendo). En `npm run shots` (oscuro), el degradado violeta, magenta y azul se reconoce igual que antes.
+
+- [x] **Recolorear las cintas del tema claro** — aplicado. Medición: eyebrows de sección en escritorio con p5 de 6.18–6.67, `vis` de 1.61–1.74; `.footer__role` en móvil, 0.1 %.
+  * **Diagnóstico:** En `_tokens.scss` (bloque `.main-container.light-mode, body.theme-light`), `--ribbon-1: #6d7fa3`, `--ribbon-2: #7d8fad` y `--ribbon-3: #4f6f96`, con opacidad 0.85, dan píxeles de cinta con L entre 0.217 y 0.335, por debajo del límite de 0.345. `#4f6f96` tiene casi la misma luminancia que `--text-tertiary`, por eso `.footer__role` falla en un 7.9 %.
+  * **Acción:** Cambiar en ese bloque `--ribbon-1: #a39fc6` (pizarra lavanda, para que haga eco del violeta del tema oscuro), `--ribbon-2: #9fb0cc` y `--ribbon-3: #8ca6c8`. Mantener `--ribbon-opacity-*` y el trazo más grueso de `.light-mode .ambient__ribbon` (`AmbientBackground.scss`).
+  * **Resultado esperado:** En tema claro, los eyebrows de sección de escritorio dan un p5 de 6.5 o más, `.footer__role` en móvil baja al 0.5 % o menos de píxeles bajo umbral y `vis` queda en 1.4 o más. En las capturas, el fondo se sigue leyendo como un plano técnico azul pizarra.
+
+### Media
+
+- [ ] **Ajustar a ojo la presencia de las cintas sin salirse del presupuesto**
+  * **Diagnóstico:** La paleta A reduce `vis` detrás de los subtítulos de unos 2.0 a unos 1.5. Es lo esperado, pero la presencia final del fondo es una decisión visual que la medición no resuelve.
+  * **Acción:** Con la paleta A aplicada, revisar el hero y dos secciones en ambos temas, a 1440 y 390 px. Si las cintas se ven demasiado tenues: en oscuro, subir `--ribbon-opacity-upper` y `--ribbon-opacity-lower`, que no pasan por detrás de los subtítulos y quedan por debajo de 0.5; en claro, subir el trazo de `.ambient__ribbon--upper` y `--lower` de 1.2 px a 1.35 px. No subir la luminancia ni la opacidad del grupo principal.
+  * **Resultado esperado:** Queda aprobada una configuración en la que `node scripts/contrast.mjs` mantiene el p5 de todos los textos en 4.5 o más (en `h2`, 3 o más) y `vis` en 1.4 o más.
+
+- [ ] **Medir de nuevo el texto sobre vidrio con la nueva paleta**
+  * **Diagnóstico:** Las cintas se ven a través de las tarjetas `.glass`. Cambiar su color modifica el fondo efectivo del texto que está sobre vidrio, que cubre la tarea *Auditar el contraste del texto sobre vidrio en ambos temas* de `PLAN_TECNICO.md`.
+  * **Acción:** Ejecutar esa tarea después de recolorear las cintas, no antes.
+  * **Resultado esperado:** La auditoría se registra con la paleta definitiva.
+
+- [ ] **Identificar el 1-1.6 % de píxeles que fallan con cualquier paleta**
+  * **Diagnóstico:** `.hero__headline` (1.6 % en escritorio) y `.section-heading > p:last-child` (alrededor del 1 % en móvil) mantienen el mismo porcentaje bajo umbral con la paleta actual, con la A y con la B. Por lo tanto, no lo causan las cintas. Las causas posibles son el barrido `.ambient__sheen` en el hero o píxeles de otro elemento dentro del recuadro medido.
+  * **Acción:** Ejecutar `node scripts/contrast.mjs`, abrir los recortes de `screenshots/contrast/*hero__headline*` y `*p_last_child*`, y localizar los píxeles oscuros o claros. Si es el sheen, comprobar que la mezcla de `--sheen-a` y `--sheen-b` con las cintas no supere el presupuesto; si es otro elemento, ajustar el recuadro que mide el script.
+  * **Resultado esperado:** Se encuentra la causa y, si corresponde, se abre una tarea con el selector concreto. El script deja de mostrar ese residuo o queda documentado como falso positivo.
+
+- [ ] **Documentar la regla de luminancia de las cintas**
+  * **Diagnóstico:** `AGENTS.md` (sección "Tema visual") dice que el fondo sigue la estética de `bg-dark.png` y `bg-light.png`, pero no pone ningún límite de contraste. Sin esa regla, un ajuste futuro de `--ribbon-*` puede volver a romper la legibilidad.
+  * **Estado:** El comentario en `_tokens.scss` ya está agregado; falta `AGENTS.md`.
+  * **Acción:** Agregar a `AGENTS.md` y como comentario sobre los `--ribbon-*` de `_tokens.scss` lo siguiente: "Mezclada con `--bg` según la opacidad del grupo principal, cada cinta debe quedar en L ≤ 0.075 (oscuro) y L ≥ 0.42 (claro); verificar con `node scripts/contrast.mjs`".
+  * **Resultado esperado:** La regla aparece en ambos archivos, y el chequeo después de cada tarea incluye el script cuando se tocan `--ribbon-*`.
+
+### Baja
+
+- [ ] **Atenuar más las cintas con `prefers-contrast: more`**
+  * **Diagnóstico:** No hay ninguna regla `prefers-contrast` en el proyecto. Quien pide más contraste ve las mismas cintas que el resto.
+  * **Acción:** En `_tokens.scss`, agregar `@media (prefers-contrast: more)` con `--ribbon-opacity-main` al 60 % de su valor en ambos bloques (oscuro 0.43, claro 0.51) y `--sheen-a` y `--sheen-b` en `transparent`. El vidrio y los halos se mantienen.
+  * **Resultado esperado:** Con DevTools > Rendering emulando `prefers-contrast: more`, las cintas se ven tenues pero presentes, y `node scripts/contrast.mjs` (con la emulación agregada al contexto) da un p5 de 7 o más en los eyebrows.
+
+---
+
+## Plan: rediseño de «Experiencia profesional y académica»
+
+**Problema:** la sección se ve grande y tosca, y muestra poca información. Las medidas salen de una captura con Playwright de la página actual.
+
+| Medida | 1440 px | 390 px |
+|---|---|---|
+| Alto de la sección `#history` | 1917 px (unas 2 pantallas) | 2459 px (unas 3 pantallas) |
+| Alto de la lista `.timeline` | 1349 px | 2040 px |
+| Ancho de cada tarjeta / ancho útil de la descripción | 1048 px / 820 px (quedan unos 200 px vacíos a la derecha) | 296 px |
+
+**Por qué se ve así** (`src/components/Timeline.tsx` y `src/assets/styles/Timeline.scss`):
+
+1. **Es una sola columna a todo el ancho.** Siete tarjetas `.glass` de 1048 px con una o dos líneas de texto cada una: mucho relleno y poco contenido.
+2. **Los adornos no dicen nada.** Las siete tarjetas repiten el mismo icono de maletín (`faBriefcase`), y la numeración `.timeline__number` («01…07») repite el orden que ya da la `<ol>`.
+3. **Faltan datos que la interfaz podría mostrar.** No hay tipo (industria, proyecto, docencia, representación), ni duración, ni tecnologías. Las fechas son texto libre («Ene 2025 – Jun 2025»), así que no se puede calcular nada a partir de ellas.
+4. **En móvil**, el marcador de 37 px y el `padding-left: 54px` dejan la tarjeta en 296 px, y el texto se parte en muchas líneas.
+
+### La versión anterior (antes del commit `0a2d8db`)
+
+La plantilla usaba `react-vertical-timeline-component`: una línea central con tarjetas alternadas a izquierda y derecha y la fecha en el lado opuesto de cada tarjeta. Desde 1170 px hacia abajo pasaba a una sola columna. Las tarjetas eran blancas y opacas, con una flecha hacia la línea y un icono de maletín morado (`#5000ca`), y todo el estilo estaba inline.
+
+- **Lo que se rescata:** la alternancia en dos lados, que aprovecha el ancho, y la idea de unir cada tarjeta con la línea.
+- **Lo que no:** la librería. Sus estilos opacos e inline chocan con el sistema de vidrio y con los tokens, y `PLAN_TECNICO.md` ya pide *Quitar la dependencia sin uso `react-vertical-timeline-component`*. La alternancia se reproduce con CSS Grid nativo.
+
+### Prototipos medidos
+
+Probé cada prototipo inyectando CSS sobre el marcado actual, sin cambiar el JSX.
+
+| Variante | Lista a 1440 px | Lista a 390 px | Observación |
+|---|---|---|---|
+| Actual | 1349 px | 2040 px | — |
+| **A: escalonado en dos columnas con línea central (escritorio)** | **928 px (−31 %)** | sin cambio | Recupera la alternancia de la versión anterior; cada tarjeta mide 516 px y se lee mejor |
+| B: fecha en una columna lateral dentro de la tarjeta | 995 px (−26 %) | 1920 px | Más plano y monótono; desperdicia la columna de la fecha |
+| **C: móvil compacto (punto en vez de icono y menos relleno)** | sin cambio | **1817 px (−11 %)** | La tarjeta pasa de 296 a 322 px |
+
+**Recomendación:** A en escritorio, C en móvil y las tareas de información de abajo. Con la descripción plegable en móvil (tarea de prioridad media), una estimación sin medir deja la lista móvil por debajo de 1000 px.
+
+### Alta
+
+- [ ] **Tipar y estructurar los datos de `experience`**
+  * **Diagnóstico:** En `Timeline.tsx`, `experience` es un arreglo sin tipo, con la fecha como texto libre (`date: "Ene 2025 – Jun 2025"`). Sin datos estructurados no se puede calcular la duración ni elegir un icono según el tipo.
+  * **Acción:** 1) En el mismo `Timeline.tsx` (los datos siguen en el componente, como pide `AGENTS.md`), definir `type ExperienceKind = "industria" | "proyecto" | "docencia" | "representacion"` e `interface ExperienceItem { start: string; end: string; kind: ExperienceKind; title: string; organization: string; description: string; tech?: string[] }`, con `start` y `end` en formato `"AAAA-MM"`. 2) Convertir las 7 entradas sin cambiar sus textos. 3) Agregar una función `formatMonth("2025-01")` que devuelva `"Ene 2025"` usando un arreglo propio de abreviaturas (así no depende de cómo cada navegador formatee `Intl` en `es-CL`). 4) Tipo propuesto para cada entrada, **que debes confirmar**: Collahuasi → `industria`; Representante Estudiantil → `representacion`; Seguimiento Solar, LIFIC Automatización y TI, y Chatbot IA → `proyecto`; las dos ayudantías → `docencia`.
+  * **Resultado esperado:** `npx tsc --noEmit` pasa y la sección muestra exactamente las mismas fechas que hoy (comparar con `npm run shots`).
+
+- [x] **Escalonar la línea de tiempo en dos columnas en escritorio**
+  * **Estado:** hecho. La fila de cada `<li>` llega por la variable `--timeline-row` (inline) y solo se usa dentro de `@media (min-width: 1024px)`, así que móvil y tablet no cambian. Medido: lista de 1349 a 928 px a 1440 px, sección de 1917 a 1496 px; a 1024 px la lista mide 1062 px; marcadores centrados en la línea (±1 px) en ambos temas; sin scroll horizontal.
+  * **Diagnóstico:** `.timeline` es una columna flex con tarjetas de 1048 px. La lista mide 1349 px a 1440 px de ancho.
+  * **Acción:** 1) En `Timeline.scss`, dentro de `@media (min-width: 1024px)`: hacer `.timeline` un grid con `grid-template-columns: 1fr 1fr; column-gap: 88px`; mover `.timeline::before` a `left: 50%` con `translateX(-50%)`; ubicar los ítems impares en la columna 1 y los pares en la 2; poner `padding-left: 0` y `margin-bottom: 22px` en `.timeline__item`. 2) En `Timeline.tsx`, darle a cada `<li>` `style={{ gridRow: (index + 1) + " / span 2" }}`, que produce el escalonado sin depender de cuántas entradas haya. 3) Poner el marcador sobre la línea central: `right: -68px` en los impares y `left: -68px` en los pares, alineado con la fecha de su tarjeta. 4) El orden del DOM y de lectura sigue siendo cronológico; solo cambia la posición visual.
+  * **Resultado esperado:** A 1440 px, la lista mide unos 930 px o menos y la sección unos 1500 px o menos. Los marcadores quedan sobre la línea a la altura de la fecha de cada tarjeta. Tab sigue el orden cronológico. Entre 1024 y 1100 px ningún título se corta (verificar con DevTools); bajo 1024 px se mantiene una columna.
+
+- [ ] **Distinguir el tipo de cada experiencia con un icono y una etiqueta**
+  * **Diagnóstico:** `.timeline__marker` muestra siempre `faBriefcase`, que no aporta información.
+  * **Acción:** 1) Asignar un icono a cada `kind` con `@mui/icons-material`, que ya está instalado (alineado con *Unificar íconos en `@mui/icons-material` y quitar FontAwesome* de `PLAN_TECNICO.md`): `FactoryOutlined` (industria), `PrecisionManufacturingOutlined` (proyecto), `SchoolOutlined` (docencia) y `GroupsOutlined` (representación). 2) Dejar el icono con `aria-hidden` y agregar la etiqueta en texto («Industria», «Proyecto»…) como `<span className="timeline__kind">` dentro de `.timeline__meta`, con el estilo de `.chip-title`. Así la información no depende solo del icono. 3) Quitar el import de `faBriefcase`.
+  * **Resultado esperado:** Cada entrada muestra un icono y una etiqueta según su tipo, en ambos temas. El lector de pantalla lee la etiqueta y no el icono. `node scripts/contrast.mjs` da 4.5:1 o más para `.timeline__kind` (agregar el selector a `targets`).
+
+### Media
+
+- [ ] **Mostrar la duración junto a la fecha y quitar la numeración**
+  * **Diagnóstico:** `.timeline__number` («01…07») repite el orden de la `<ol>`, y la duración, que es lo que más información aporta, no aparece en ningún lado.
+  * **Acción:** 1) Agregar `durationLabel(start, end)`, que cuente los meses incluyendo los extremos y devuelva «6 meses» o «1 año 4 meses». 2) Reemplazar `<span className="timeline__number">` por `<span className="timeline__duration">` con ese texto. 3) Borrar `.timeline__number` del SCSS.
+  * **Resultado esperado:** «Ene 2025 – Jun 2025» muestra «6 meses» y «Ago 2020 – Ago 2022» muestra «2 años 1 mes». No queda `timeline__number` en `src/`.
+
+- [ ] **Compactar la línea de tiempo en móvil**
+  * **Diagnóstico:** Por debajo de 640 px, `.timeline__item` tiene `padding-left: 54px` y el marcador mide 37 px con icono. La tarjeta queda en 296 px y la lista en 2040 px a 390 px de ancho.
+  * **Acción:** En el `@media (max-width: 640px)` de `Timeline.scss`: poner `padding-left: 28px` en el ítem, `left: 5px` en `.timeline::before` y, en el marcador, un punto de 11 px (`background: var(--accent)`, `box-shadow: 0 0 0 4px var(--accent-soft)`) con el icono oculto. Además, `padding: 16px 18px` en la tarjeta y `gap: 12px` en la lista. La etiqueta de tipo (tarea de prioridad alta) sigue indicando el tipo.
+  * **Resultado esperado:** A 390 px, la lista mide unos 1820 px o menos y la tarjeta unos 320 px de ancho. El punto queda centrado sobre la línea en ambos temas.
+
+- [ ] **Hacer plegable la descripción en móvil (requiere aprobación de diseño)**
+  * **Diagnóstico:** Aun compacta, la lista móvil ocupa más de 2 pantallas, porque la descripción es lo que más alto suma.
+  * **Acción:** Solo por debajo de 640 px, mostrar fecha, título, organización y tipo, y dejar la descripción detrás de un `<button aria-expanded aria-controls>` («Ver detalle»), con su panel `id` y una transición de `grid-template-rows: 0fr → 1fr` que respete `prefers-reduced-motion`. En escritorio la descripción se sigue viendo siempre. No usar `<details>`, porque no permite controlar la versión de escritorio sin JS.
+  * **Resultado esperado:** A 390 px, con todo plegado, la lista mide unos 1000 px o menos (hay que medirlo). El botón mide 44 px o más, se opera con Enter y Espacio, y el lector de pantalla anuncia si está expandido o no.
+
+- [ ] **Mostrar las tecnologías de cada experiencia (requiere contenido)**
+  * **Diagnóstico:** `Expertise` ya muestra tecnologías con `.chips` y `.chip`, pero las experiencias no tienen ese dato. Además, `.chip` está definido en `Expertise.scss`, así que no se puede reutilizar sin duplicarlo.
+  * **Acción:** 1) Mover `.chips`, `.chip` y `.chip-title` de `Expertise.scss` a `_glass.scss` y cargarlos globalmente. 2) Si `item.tech` existe, mostrar los chips bajo la descripción. 3) **Tú agregas el contenido**: la lista `tech` de cada entrada (por ejemplo, PLC/DCS para Collahuasi o C/C++ para la ayudantía).
+  * **Resultado esperado:** Las entradas con `tech` muestran chips con el mismo estilo que Competencias, en ambos temas, y las que no lo tienen se ven igual que antes.
+
+### Baja
+
+- [ ] **Unir cada tarjeta con la línea central en escritorio**
+  * **Diagnóstico:** En la versión anterior, una flecha unía cada tarjeta con la línea. En la variante A, la tarjeta y el marcador quedan separados por 88 px de vacío.
+  * **Acción:** Agregar en `.timeline__item::after` (no en la tarjeta, porque `.glass--interactive` tiene `overflow: hidden`) un trazo horizontal de 1 px con `background: var(--accent-line)` desde el borde de la tarjeta hasta el marcador. Mostrarlo solo en `@media (min-width: 1024px)`.
+  * **Resultado esperado:** Cada tarjeta se ve conectada a su punto de la línea en ambos temas, y en móvil no aparece.
+
+- [ ] **Revisar la sección rediseñada en ambos temas y a 200 % de zoom**
+  * **Diagnóstico:** El nuevo layout cambia anchos y posiciones sobre el fondo ambiental. Se apoya en *Quitar `glass--interactive` de las tarjetas que no son interactivas*, que también afecta a `.timeline__card`.
+  * **Acción:** Revisar a 320, 390, 768, 1024, 1440 y 1920 px y con zoom al 200 % a 1280 px, en ambos temas. Ejecutar `node scripts/contrast.mjs` agregando `.timeline__kind` y `.timeline__duration` a `targets`, y `npm run shots`.
+  * **Resultado esperado:** No hay desbordes ni solapes, el contraste cumple el mínimo y las capturas quedan aprobadas.
+
+---
+
+## Prioridad ALTA
+
+- [x] **Agregar un halo de legibilidad a los textos que van directo sobre el fondo**
+  * **Diagnóstico:** `.eyebrow`, `.section-heading > p:last-child`, `.hero__headline`, `.footer__role` y `.footer__bottom p` (`src/index.scss`, `Main.scss`, `Footer.scss`) no tienen ninguna separación de las cintas animadas. Con el texto al 70 % de la altura de la pantalla, hasta un 18.6 % del fondo de un eyebrow queda por debajo de 4.5:1 (ver la tabla).
+  * **Acción:** 1) En los dos bloques de `_tokens.scss`, agregar `--text-halo: 0 0 2px var(--bg), 0 0 10px var(--bg), 0 0 18px var(--bg);`. Usar `var(--bg)` hace que el halo cambie solo con el tema. 2) Aplicar `text-shadow: var(--text-halo);` a esos cinco selectores. 3) No aplicarlo a los textos dentro de `.glass`, que ya tienen su propia superficie. El halo es difuso y translúcido, así que las cintas siguen viéndose alrededor del texto.
+  * **Resultado esperado:** `node scripts/contrast.mjs` deja los eyebrows de sección en 0.5 % o menos de píxeles bajo umbral y con p5 de 5 o más, en ambos temas y viewports. Además, a simple vista las cintas se ven igual fuera del área del texto (comparar con `npm run shots`).
+
+- [x] **Separar el color de los eyebrows del de las cintas**
+  * **Diagnóstico:** `.eyebrow` (`src/index.scss`) usa `--accent`, del mismo tono y luminosidad que `--ribbon-3` y `--ribbon-2`. Así el texto de 0.72 rem se confunde con las hebras que lo cruzan.
+  * **Acción:** En `.eyebrow`, cambiar `color: var(--accent)` por `color: var(--accent-bright)` (`#bad4f5` en oscuro, `#123661` en claro). Las dos variantes ya existen en ambos temas, así que no hace falta crear tokens. Dejar `.eyebrow::before` con `--accent-line`. Esto afecta también a los eyebrows de `.contact-panel` y `.cv-card`, que están sobre vidrio, con un contraste igual o mayor.
+  * **Resultado esperado:** El p5 del eyebrow del hero pasa de 4.31 a 5.84 en claro y de 5.64 a 8.01 en oscuro (escritorio), medido con `node scripts/contrast.mjs`. El tono sigue siendo de la familia del acento.
+
+- [ ] **Quitar `border-radius` del `:focus-visible` global**
+  * **Diagnóstico:** `src/index.scss` (líneas 86-90) declara `border-radius: 4px` dentro de `:focus-visible`. Eso cambia la forma real del elemento enfocado, no solo la del contorno: los controles en píldora o círculo (`.glass-button`, `.navbar__icon`, `.hero__social`, `.footer__socials a`) pasan a tener esquinas de 4 px, con fondo y borde deformados, mientras tienen el foco.
+  * **Acción:** Borrar la línea `border-radius: 4px;` del bloque `:focus-visible` en `src/index.scss`. No agregar reglas por componente: en los navegadores actuales, `outline` ya sigue el `border-radius` del elemento.
+  * **Resultado esperado:** Con Tab sobre "Ver CV" y sobre el icono de GitHub, el `border-radius` computado en DevTools sigue en `999px` y `50%`, y el contorno sigue la curva. Revisar en Chromium, Firefox y Safari, en ambos temas.
+
+- [x] **Hacer que el nombre accesible del logo incluya su texto visible** — resuelto al quitar la marca «AC». El botón muestra solo «Andrés Carrasco» en todas las anchuras y su nombre accesible es ese mismo texto; «Ir al inicio» quedó como `title`.
+  * **Diagnóstico:** En `src/components/Navigation.tsx` (líneas 141-143), el botón `.navbar__brand` muestra "AC Andrés Carrasco", pero su `aria-label="Ir al inicio"` reemplaza ese texto. No cumple WCAG 2.5.3 *Label in Name* (nivel A): quien usa control por voz no puede activarlo diciendo lo que ve.
+  * **Acción:** Quitar `aria-label` del botón y poner `aria-hidden="true"` en `<span className="navbar__mark">AC</span>`, para que el nombre accesible sea "Andrés Carrasco". Por debajo de 900 px `.navbar__name` se oculta con `display: none`, lo que deja el botón sin nombre; en ese rango, cambiar ese `display: none` por la técnica de `.sr-only`.
+  * **Resultado esperado:** En DevTools > Accessibility, el nombre del botón es "Andrés Carrasco" tanto a 1440 px como a 390 px.
+
+- [ ] **Llevar a 44 px el área táctil de los enlaces e iconos de la barra**
+  * **Diagnóstico:** En `src/assets/styles/Navigation.scss`, `.navbar__link` (línea 86) tiene `padding: 9px 13px` y `font-size: 0.68rem`, lo que da unos 31 px de alto. `.navbar__icon` (líneas 123-124) mide `38px !important`, y lo usan el botón de tema y el de "Abrir menú".
+  * **Acción:** 1) Agregar `--touch-target: 44px` a los dos bloques de `_tokens.scss`. 2) En `.navbar__link`, agregar `min-height: var(--touch-target)` y `display: inline-flex; align-items: center`. 3) En `.navbar__icon`, reemplazar `38px` por `var(--touch-target)` en ancho y alto. 4) Comprobar que `.navbar__inner` (`min-height: 62px` / `58px`) los sigue conteniendo.
+  * **Resultado esperado:** En consola, `[...document.querySelectorAll('.navbar__link, .navbar__icon')].map(e => e.getBoundingClientRect().height)` devuelve solo valores de 44 o más. A 901 px los cuatro enlaces caben sin saltar de línea.
+
+- [ ] **Llevar a 44 px el área táctil de los iconos sociales del hero y del pie**
+  * **Diagnóstico:** `.hero__social` mide 42×42 (`Main.scss`, líneas 89-90) y `.footer__socials a` mide 38×38 (`Footer.scss`, líneas 69-70).
+  * **Acción:** Usar `width/height: var(--touch-target)` en ambos selectores (depende de la tarea anterior, que crea el token) y mantener el tamaño del SVG.
+  * **Resultado esperado:** Los rectángulos miden 44×44 o más. A 320 px los cuatro iconos de `.hero__socials` siguen en una sola línea (4 × 44 + 3 × 7 = 197 px).
+
+- [ ] **Llevar a 44 px el área táctil de los `IconButton` de copiar y cerrar**
+  * **Diagnóstico:** `.copy-btn` (`Contact.scss`, línea 81) y `.nav-drawer__close` (`Navigation.scss`, línea 194) son `IconButton` de MUI sin `size`. Su tamaño por defecto es 40×40 (8 px de padding y 24 px de icono).
+  * **Acción:** Agregar `width: var(--touch-target); height: var(--touch-target);` a ambos selectores. MUI no fija ni ancho ni alto, así que no hace falta `!important`.
+  * **Resultado esperado:** Ambos botones miden 44×44 en DevTools, y `.email-container` mantiene su altura visual a 560 px.
+
+- [ ] **Limitar a dispositivos con puntero los hover que mueven o elevan**
+  * **Diagnóstico:** El proyecto no tiene ningún `@media (hover: hover)`. En pantallas táctiles el `:hover` se queda pegado después de un toque y deja tarjetas elevadas o imágenes ampliadas. Pasa en `.glass--interactive:hover` (`_glass.scss`, línea 70, `translateY(-3px)` más sombra), `.glass-button:hover`, `.hero__social:hover`, `.footer__socials a:hover`, `.award:hover .award__frame img` (`scale`) y `.email-container:hover`.
+  * **Acción:** Envolver en `@media (hover: hover)` solo las declaraciones de `transform`, `box-shadow` y del barrido `::after`, en `_glass.scss` y en el SCSS de cada componente. Los cambios de color pueden quedarse fuera.
+  * **Resultado esperado:** En DevTools, con emulación de un dispositivo táctil, tocar una tarjeta o un botón no los deja elevados. Con ratón, el efecto sigue igual que ahora.
+
+- [ ] **Mostrar el icono "abrir" de los premios con foco de teclado y en táctil**
+  * **Diagnóstico:** `.award__open` (`Project.scss`, línea 37) tiene `opacity: 0` y solo aparece con `.award:hover .award__open` (línea 55). Quien navega con teclado o con el dedo nunca lo ve.
+  * **Acción:** Agregar `.award:focus-within .award__open` al selector de la línea 55. Además, agregar `@media (hover: none) { .award__open { opacity: 1; transform: none; } }`.
+  * **Resultado esperado:** Al llegar con Tab al enlace del premio aparece el icono. En emulación táctil se ve sin necesidad de hover.
+
+- [ ] **Dejar un solo enlace por tarjeta de premio**
+  * **Diagnóstico:** En `src/components/Project.tsx`, cada `article.award` tiene dos enlaces al mismo `href`: `a.award__frame` (línea 46, con `aria-label="Ver …"`) y el enlace dentro de `<h3>` (línea 59). El resultado es el doble de paradas de tabulación y dos nombres distintos para un mismo destino.
+  * **Acción:** 1) Cambiar `<a className="award__frame" …>` por `<div className="award__frame">`, sin `href`, `target` ni `aria-label`. 2) Para que toda la tarjeta siga siendo clicable, agregar en `Project.scss`: `.award__body h3 a::after { content: ""; position: absolute; inset: 0; z-index: 3; }`. `.award` ya es `position: relative` por `.glass`. 3) Cambiar `.award:focus-within` (tarea anterior) para que dependa del enlace del título.
+  * **Resultado esperado:** Hay un enlace por premio en el árbol de accesibilidad y Tab recorre dos enlaces de premio, no cuatro. Un clic sobre la imagen sigue abriendo el destino.
+
+- [ ] **Medir el flash de tema al recargar en modo claro**
+  * **Diagnóstico:** El script inline de `public/index.html` (línea 30) pone en `<html>` el fondo y el `color-scheme` claros, pero no la clase de tema. Los tokens claros se activan con `body.theme-light` y `.main-container.light-mode`, que `App.tsx` aplica en un `useEffect` después de montar. Hasta ese momento, `body { background: var(--bg) }` (`index.scss`, línea 15) toma el oscuro de `:root`. Es probable que se vea un cuadro oscuro, pero leyendo el código no se puede confirmar.
+  * **Acción:** En Chrome, ejecutar `localStorage.setItem("portfolio-theme","light")`, poner CPU 4× más lenta y red "Fast 3G", y grabar en Performance con capturas activadas durante la recarga. Repetir en Safari iOS (simulador o dispositivo) y en Chromium Android. Anotar si aparece un fondo oscuro y cuánto dura.
+  * **Resultado esperado:** Un informe de sí o no por navegador, con su duración. Si hay flash, ejecutar la tarea *Aplicar el tema claro antes del primer pintado*.
+
+---
+
+## Prioridad MEDIA
+
+- [x] **Subir el contraste de `.footer__role` en tema claro** — resuelto con la paleta A: 0.1 % de píxeles bajo umbral, sin cambiar su color.
+  * **Diagnóstico:** `.footer__role` (`Footer.scss`) usa `--text-tertiary` (`#425264` en claro), con una luminosidad casi igual a la de las cintas claras. En móvil, con el texto al 70 % de la altura, el 18.1 % de su fondo queda por debajo de 4.5:1. Con el halo de la tarea de Prioridad Alta baja al 6.7 %, que sigue siendo demasiado.
+  * **Acción:** Primero aplicar *Recolorear las cintas del tema claro*, que en la medición ya lo baja al 0.2 %. Solo si después sigue por encima del 1 %, cambiar el color de `.footer__role` a `var(--text-secondary)` y mantener el `text-shadow: var(--text-halo)`.
+  * **Resultado esperado:** `node scripts/contrast.mjs` deja `.footer__role` en el 1 % o menos de píxeles bajo umbral en móvil, en ambos temas.
+
+- [ ] **Incorporar la medición de contraste sobre el fondo como script del proyecto**
+  * **Diagnóstico:** Ya existe `scripts/contrast.mjs` (sin commitear), usado para este diagnóstico. Usa `@playwright/test`, que ya está en `devDependencies`, y no agrega dependencias. Todavía no tiene un script en `package.json` y escribe en `screenshots/contrast`, que ya está ignorado por git porque `/screenshots` está en `.gitignore`.
+  * **Acción:** 1) Agregar `"contrast": "node scripts/contrast.mjs"` a `scripts` en `package.json`, junto a `shots`. 2) Mantener la lista `targets` sincronizada con los selectores de texto que van sin vidrio (si se aplica la tarea de nombres BEM, actualizar `.section-heading > p:last-child`).
+  * **Resultado esperado:** Con `npm start` en marcha, `npm run contrast` imprime la tabla por viewport, tema y selector, y guarda recortes solo de los casos que fallan.
+
+- [ ] **Aplicar el tema claro antes del primer pintado (solo si la medición lo confirma)**
+  * **Diagnóstico:** Depende de *Medir el flash de tema al recargar en modo claro*. Los tokens claros no existen hasta que React agrega `body.theme-light`.
+  * **Acción:** 1) En `_tokens.scss`, agregar `html.theme-light` a la lista de selectores del bloque claro (`.main-container.light-mode, body.theme-light, html.theme-light`); las variables se heredan a `body`. 2) En el script inline de `public/index.html`, si el tema guardado es `light`, ejecutar `root.classList.add("theme-light")`. 3) En el `useEffect` de `App.tsx`, alternar también `document.documentElement.classList.toggle("theme-light", mode === "light")`.
+  * **Resultado esperado:** Al repetir la medición no aparece ningún cuadro oscuro. Las capturas de `npm run shots` en tema claro no cambian, y al cambiar de tema todo sigue alternando bien, incluido el `Drawer`.
+
+- [ ] **Sincronizar `meta[name="theme-color"]` desde el script inline**
+  * **Diagnóstico:** `public/index.html` (línea 7) fija `theme-color` en `#070a0f` y el script inline no lo cambia. Quien entra en modo claro ve la barra del navegador móvil oscura hasta que monta React (`App.tsx`, línea 35). Además, los colores `#070a0f` y `#edf1f5` están escritos tres veces: en el script, en `App.tsx` (líneas 35 y 41) y en los tokens.
+  * **Acción:** En el script inline, después de calcular `light`, ejecutar `document.querySelector('meta[name="theme-color"]').setAttribute("content", light ? "#edf1f5" : "#070a0f")`. Agregar en `App.tsx` y en el script un comentario que remita al otro, para que se mantengan sincronizados (no se pueden compartir variables entre ambos sin tocar el build).
+  * **Resultado esperado:** Con tema claro guardado, `document.querySelector('meta[name="theme-color"]').content` vale `#edf1f5` en el primer evento `DOMContentLoaded`. En Android, la barra del navegador es clara desde el inicio.
+
+- [ ] **Agregar `scroll-margin-top` al destino `#cv`**
+  * **Diagnóstico:** En `Footer.tsx`, el enlace `href="#cv"` (línea 44) apunta a `article.cv-card#cv`. Ese elemento no es `.section` y no tiene `scroll-margin-top` (`Project.scss`, línea 96), así que la barra fija tapa la parte superior de la tarjeta.
+  * **Acción:** Agregar `scroll-margin-top: calc(var(--nav-height) + 28px);` a `.cv-card`.
+  * **Resultado esperado:** Al pulsar el icono de CV del pie, el borde superior de la tarjeta queda unos 28 px por debajo de la barra, a 1440 y a 390 px.
+
+- [ ] **Exponer el estado del menú móvil con `aria-expanded` y `aria-controls`**
+  * **Diagnóstico:** El botón "Abrir menú" (`Navigation.tsx`, línea 176) no indica si el menú está abierto, y el `Drawer` no tiene `id`. En todo `src/` no aparece `aria-expanded`.
+  * **Acción:** Agregar `aria-expanded={mobileOpen}` y `aria-controls="nav-drawer"` al `IconButton`, y `id: "nav-drawer"` en `PaperProps` (línea 191).
+  * **Resultado esperado:** En DevTools > Accessibility, el botón aparece como `expanded: false` o `true` según el estado del menú.
+
+- [ ] **Verificar foco atrapado, Escape y devolución de foco en el `Drawer`**
+  * **Diagnóstico:** `Navigation.tsx` usa el `Drawer` de MUI con `keepMounted`. MUI atrapa y devuelve el foco por defecto, pero con `keepMounted` el contenido sigue en el DOM aunque esté cerrado. No se puede confirmar leyendo el código.
+  * **Acción:** A 390 px: 1) abrir el menú con Enter; 2) pulsar Tab y Shift+Tab varias veces y comprobar que el foco no sale del drawer; 3) cerrar con Escape y comprobar que el foco vuelve a "Abrir menú"; 4) volver a abrir, elegir un enlace y comprobar que, con el drawer cerrado, sus botones no reciben Tab.
+  * **Resultado esperado:** Se cumplen los cuatro puntos. Si alguno falla, se abre una tarea específica con lo observado.
+
+- [ ] **Tokenizar las sombras y velos repetidos por tema**
+  * **Diagnóstico:** Hay sombras `rgba` escritas a mano, cada una con su copia para tema claro: `Main.scss` (líneas 30, 35 y 134), `Contact.scss` (44 y 50) y `Navigation.scss` (27, 32, 156 y 161). Los velos del drawer también están fijos (`Navigation.scss`, líneas 165 y 169). Por eso se repiten pares de selectores `.light-mode X` y `body.theme-light X`.
+  * **Acción:** Crear en los dos bloques de `_tokens.scss` los tokens `--shadow-lift`, `--shadow-raised`, `--shadow-drawer` y `--scrim`, con los valores actuales de cada tema. Usarlos en esos selectores y borrar los pares `.light-mode …` / `body.theme-light …` que quedan sin efecto.
+  * **Resultado esperado:** `grep -n "rgba(" src/assets/styles/{Main,Contact,Navigation}.scss` solo devuelve degradados decorativos. Las capturas de `npm run shots` en ambos temas no cambian.
+
+- [ ] **Tokenizar los colores del botón de acento**
+  * **Diagnóstico:** En `_glass.scss`, `.glass-button--accent` (líneas 138-167) usa colores fijos: `#06101b` para el texto, `rgba(169, 198, 234, 0.55)` para el borde y, en tema claro, `#24558e`, `#1c4a7e`, `#12345e`, `#163e6b`, `#0c2545` y `#f7fbff`. Tiene sus propias reglas de tema en vez de tokens.
+  * **Acción:** Crear `--on-accent`, `--accent-button`, `--accent-button-hover` y `--accent-button-border` en ambos bloques. Reemplazar los valores y borrar las reglas `.light-mode .glass-button--accent*` y `body.theme-light .glass-button--accent*`.
+  * **Resultado esperado:** No queda ningún hex en `_glass.scss`. El botón se ve igual en ambos temas y el texto sobre el botón mantiene un contraste de 4.5:1 o más (lo audita la tarea *Auditar el contraste del texto sobre vidrio en ambos temas*).
+
+- [ ] **Quitar los `!important` de los overrides de MUI en `Navigation.scss`**
+  * **Diagnóstico:** `Navigation.scss` tiene 16 `!important` (líneas 2-4, 123-143, 149-153, 195 y 258). Hacen falta porque emotion inyecta el CSS de MUI después del propio y gana cuando la especificidad empata.
+  * **Acción:** Subir la especificidad en vez de usar `!important`: `.navbar.MuiAppBar-root`, `.navbar__icon.MuiIconButton-root`, `.navbar__menu.MuiIconButton-root`, `.nav-drawer__paper.MuiDrawer-paper` y `.nav-drawer__close.MuiIconButton-root`. Quitar los `!important` de uno en uno y confirmar en DevTools > Computed que la regla propia sigue ganando.
+  * **Resultado esperado:** `grep -c '!important' src/assets/styles/Navigation.scss` da 0. La barra, los iconos, el menú (visible solo por debajo de 900 px) y el drawer se ven igual en ambos temas.
+
+- [ ] **Quitar los `!important` de los tamaños de icono SVG**
+  * **Diagnóstico:** `font-size: … !important` aparece en `.hero__actions .glass-button svg` y `.hero__social svg` (`Main.scss`, líneas 76 y 102), `.footer__socials svg` (`Footer.scss`, 88), `.cv-card__actions .glass-button svg` (`Project.scss`, 148) y `.email-icon` (`Contact.scss`, 71). Los cuatro primeros selectores ya tienen especificidad (0,1,1) o mayor, que gana a `.MuiSvgIcon-fontSize*` (0,1,0).
+  * **Acción:** Borrar `!important` en esos cinco puntos. En `.email-icon`, cambiar el selector a `.email-link .email-icon`.
+  * **Resultado esperado:** Los iconos miden lo mismo antes y después según DevTools > Computed, y no hay diferencias en las capturas.
+
+- [ ] **Quitar los `!important` de `Contact.scss`**
+  * **Diagnóstico:** `.email-link` usa `color: … !important` (línea 58), lo que además anula el `a:hover` global, y `.copy-btn` y `.copy-btn:hover` (líneas 81-90) usan `!important` en color, fondo y transición para ganarle a MUI.
+  * **Acción:** Cambiar a `.email-container .email-link` (especificidad 0,2,0, mayor que el 0,1,1 de `a:hover`) y a `.email-container .copy-btn.MuiIconButton-root`, sin `!important`. Decidir si el correo cambia de color al pasar el cursor; hoy no lo hace.
+  * **Resultado esperado:** `grep -c '!important' src/assets/styles/Contact.scss` da 0, y el botón de copiar y el enlace se ven igual en ambos temas.
+
+- [ ] **Quitar `glass--interactive` de las tarjetas que no son interactivas**
+  * **Diagnóstico:** `.skill` (`Expertise.tsx`, línea 74) y `.timeline__card` (`Timeline.tsx`, línea 87) usan `glass--interactive`: al pasar el cursor se elevan y muestran el barrido de brillo, como si fueran clicables, pero no contienen ningún enlace. `.award` y `.cv-card` sí tienen enlaces y deben conservar la clase.
+  * **Acción:** Quitar `glass--interactive` de esos dos `className` y mantener `glass`. *Es una decisión visual: confirmar antes de aplicarla.*
+  * **Resultado esperado:** Las tarjetas de competencias y de trayectoria ya no se elevan; las de premios y CV sí. El vidrio, el borde especular y la sombra no cambian.
+
+- [ ] **Eliminar el vidrio anidado en el campo de correo**
+  * **Diagnóstico:** En `Contact.tsx`, `.contact-panel.glass` (línea 26) contiene `.email-container.glass.glass--pill` (línea 36). Quedan dos `backdrop-filter`, uno sobre otro, y dos bordes especulares en el mismo bloque.
+  * **Acción:** 1) Quitar `glass` y `glass--pill` del `className` de `.email-container`. 2) En `Contact.scss`, darle una superficie interior translúcida: `border: 1px solid var(--glass-border); background: var(--accent-soft); box-shadow: inset 0 1px 0 var(--glass-highlight);`, sin `backdrop-filter`. *Decisión visual: confirmar.*
+  * **Resultado esperado:** En DevTools > Layers, el bloque de contacto tiene una sola capa con `backdrop-filter`. El campo sigue leyéndose como vidrio en ambos temas.
+
+- [ ] **Dar al drawer el mismo desenfoque que el resto del vidrio**
+  * **Diagnóstico:** `.nav-drawer__paper` (`Navigation.scss`, línea 148) usa `blur(15px)` fijo, mientras el resto del vidrio usa `--glass-blur` (13 o 10 px en oscuro y 18 o 14 px en claro).
+  * **Acción:** Reemplazarlo por `blur(var(--glass-blur)) saturate(var(--glass-saturate))` en las dos declaraciones (con y sin prefijo). Funciona porque `--glass-blur` también está definido para `body.theme-light`.
+  * **Resultado esperado:** En DevTools > Computed, el `backdrop-filter` del drawer coincide con el de las tarjetas en ambos temas y a 390 y 1024 px.
+
+- [ ] **Mostrar error al copiar el correo en vez de redirigir sin aviso**
+  * **Diagnóstico:** En `Contact.tsx`, el `catch` de `handleCopy` (líneas 18-19) navega a `mailto:` sin decir que la copia falló, así que no existe un estado de error. La limpieza del temporizador ya está en la tarea *Limpiar el temporizador del botón copiar en `Contact.tsx`*.
+  * **Acción:** Reemplazar `copied: boolean` por `status: "idle" | "copied" | "error"`. En el `catch`, poner `"error"`, mostrar el tooltip "No se pudo copiar" y anunciarlo en el `span.sr-only` con `role="status"`. Quitar la redirección a `mailto:`; el enlace del correo ya cumple esa función.
+  * **Resultado esperado:** Con el portapapeles bloqueado (por ejemplo, desactivando `navigator.clipboard` en DevTools), el tooltip muestra el error, el lector de pantalla lo anuncia y la página no navega.
+
+- [ ] **Subir el tamaño mínimo de las etiquetas monoespaciadas**
+  * **Diagnóstico:** Varias etiquetas miden entre 0.66 y 0.68 rem (unos 10.6-10.9 px): `.navbar__link`, `.skill__index`, `.chip`, `.chip-title`, `.timeline__number`, `.nav-drawer__index`, `.nav-drawer__title`, `.footer__role` y `.footer__top-link`.
+  * **Acción:** Crear `--text-label: 0.75rem` en ambos bloques y aplicarlo a esos selectores. Revisar después que `.navbar__links` siga cabiendo a 901 px.
+  * **Resultado esperado:** Ningún texto queda por debajo de 12 px de `font-size` computado. Con zoom al 200 % a 1280 px, la barra y las tarjetas no se solapan.
+
+- [ ] **Verificar el layout de 320 a 1920 px sin el `overflow-x` que lo oculta**
+  * **Diagnóstico:** `body { overflow-x: hidden }` (`index.scss`, línea 27) esconde cualquier desborde horizontal, así que el scroll de la página no lo revela.
+  * **Acción:** A 320, 390, 768, 1024, 1440 y 1920 px, en ambos temas, desactivar temporalmente esa regla en DevTools y ejecutar `[...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1)`. Ignorar `.ambient` y sus hijos. Repetir en 844×390 (horizontal).
+  * **Resultado esperado:** La lista queda vacía en todas las anchuras. Si aparece algún elemento, se abre una tarea con el selector concreto.
+
+- [ ] **Verificar `forced-colors` y `prefers-contrast`**
+  * **Diagnóstico:** No hay reglas `forced-colors` ni `prefers-contrast`. El borde especular (`.glass::before` con máscara y degradado), los chips y los botones de acento dependen de fondos y sombras que el modo de alto contraste elimina.
+  * **Acción:** En DevTools > Rendering, emular `forced-colors: active` y `prefers-contrast: more`, y revisar tarjetas, chips, botones, barra, drawer y el anillo de foco. Si se pierde algún límite o estado, agregar `@media (forced-colors: active)` en `_glass.scss` con `border-color: CanvasText` en `.glass` y `.glass-button`, y `.glass::before { display: none }`.
+  * **Resultado esperado:** En alto contraste, todas las superficies y botones tienen un borde visible y un foco claro.
+
+- [ ] **Verificar Safari/iOS: máscara del vidrio, fondo fijo y altura del hero**
+  * **Diagnóstico:** `.glass::before` combina `mask-composite: exclude` con `-webkit-mask-composite: xor` (`_glass.scss`). `.ambient` es `position: fixed; inset: 0`. `.hero` usa `min-height: 100svh` sin respaldo (`Main.scss`, línea 5).
+  * **Acción:** En Safari iOS (dispositivo o simulador) y en Safari de macOS, revisar el borde especular de las tarjetas, hacer scroll para que la barra de URL se contraiga y se expanda (el fondo no debe dejar franjas) y comprobar la altura del hero. Si hay problemas con `svh`, agregar `min-height: 100vh;` justo antes de `min-height: 100svh;`.
+  * **Resultado esperado:** El borde especular se ve igual que en Chromium, el fondo no deja franjas y el hero llena la pantalla. Además, revisar Firefox y Chromium Android en las mismas vistas.
+
+---
+
+## Prioridad BAJA
+
+- [ ] **Mapear a tokens los radios fijos**
+  * **Diagnóstico:** Hay radios escritos a mano: 9 px en `.award__frame img`, 14 px en `.skill__icon`, 15 px en `.award__frame`, 16 px en `.cv-card__icon` y `24px 0 0 24px` en `.nav-drawer__paper`. Al mismo tiempo, `--radius-sm` (10 px) y `--radius-md` (16 px) no se usan.
+  * **Acción:** Usar `--radius-sm` para 9, 10 y 11 px, `--radius-md` para 14, 15 y 16 px, y `--radius-lg` para el drawer (24 → 22 px). Si alguna diferencia se nota, crear un token intermedio en ambos bloques.
+  * **Resultado esperado:** `grep -n "border-radius: [0-9]" src/assets/styles` solo devuelve `50%`, y las capturas no muestran cambios apreciables.
+
+- [ ] **Mapear a tokens las duraciones fijas**
+  * **Diagnóstico:** Hay duraciones fijas: 680 ms en `Reveal.scss`, 620 ms en `.award__frame img`, 720 ms en `.glass--interactive::after` y 600 ms en `.ambient__sheen`. Mientras tanto, `--duration-slow` (560 ms) no se usa.
+  * **Acción:** Usar `--duration-slow` para 560-620 ms y crear `--duration-reveal` (680 ms) y `--duration-sheen` (720 ms) en ambos bloques. Las curvas ya usan `--ease-*`.
+  * **Resultado esperado:** `grep -nE "[0-9]{3}ms" src/assets/styles` solo devuelve `_tokens.scss`.
+
+- [ ] **Definir una escala tipográfica con tokens**
+  * **Diagnóstico:** Hay unos 24 valores de `font-size` distintos entre los SCSS (por ejemplo 0.76, 0.78, 0.86, 0.88, 0.9, 0.92, 0.98, 1.08, 1.12, 1.14, 1.16 y 1.18 rem).
+  * **Acción:** Definir en ambos bloques `--text-sm`, `--text-base`, `--text-md` y `--text-lg` (más el `--text-label` de la tarea de Prioridad Media), agrupando los valores que difieren en ±0.02 rem. Los `clamp()` de los títulos se quedan como están.
+  * **Resultado esperado:** Los valores de `font-size` fijos bajan de unos 24 a 6 o menos, sin cambios apreciables en las capturas.
+
+- [ ] **Consolidar los puntos de quiebre**
+  * **Diagnóstico:** Hay 10 breakpoints distintos (420, 480, 560, 640, 700, 760, 768, 780, 900 y 980 px) repartidos en 9 archivos.
+  * **Acción:** Crear `src/assets/styles/_breakpoints.scss` con `$bp-xs: 420px; $bp-sm: 560px; $bp-md: 768px; $bp-lg: 980px;` e importarlo con `@use` en cada SCSS de componente (las custom properties no funcionan dentro de `@media`). Llevar cada consulta al valor más cercano, cambiando de uno en uno.
+  * **Resultado esperado:** `grep -rhoE "max-width: [0-9]+px" src/assets/styles src/index.scss | sort -u` devuelve 4 valores o menos, y las capturas a 390 y 1440 px no cambian.
+
+- [ ] **Eliminar las reglas sin uso `.glass-rule` y `.section-rule`**
+  * **Diagnóstico:** `.glass-rule` (`_glass.scss`, línea 171) y `.section-rule` (`index.scss`, línea 155) no se usan en ningún componente.
+  * **Acción:** Borrar ambos bloques.
+  * **Resultado esperado:** `grep -rn "glass-rule\|section-rule" src` no devuelve nada, y el build y las capturas no cambian.
+
+- [ ] **Quitar el fondo fijo duplicado de `body.theme-light`**
+  * **Diagnóstico:** `index.scss` (líneas 30-32) declara `body.theme-light { background: #edf1f5; }`, pero `body { background: var(--bg) }` ya resuelve ese mismo valor porque `body.theme-light` redefine `--bg`.
+  * **Acción:** Borrar el bloque.
+  * **Resultado esperado:** En tema claro, el fondo computado de `body` en DevTools sigue siendo `rgb(237, 241, 245)`.
+
+- [ ] **Extraer una clase `.icon-tile` para los íconos en baldosa**
+  * **Diagnóstico:** `.skill__icon`, `.cv-card__icon` y `.timeline__marker` repiten el mismo patrón (rejilla centrada, borde, radio, fondo `--accent-soft`, `inset` con `--glass-highlight` y color `--accent-bright`), con pequeñas variaciones de tamaño.
+  * **Acción:** Crear `.icon-tile` en `_glass.scss` con el patrón común y modificadores de tamaño (`--md` 48 px, `--lg` 58 px). Agregarla en los JSX y dejar en cada selector solo lo que lo distingue.
+  * **Resultado esperado:** Desaparece la duplicación en 3 archivos y las capturas no cambian.
+
+- [ ] **Extraer una clase `.icon-link` para los enlaces circulares**
+  * **Diagnóstico:** `.hero__social` (`Main.scss`) y `.footer__socials a` (`Footer.scss`) son casi idénticos: círculo con `--hairline`, `hover` con `--accent-soft` y `--accent-line`, y `translateY(-2px)`.
+  * **Acción:** Crear `.icon-link` en `_glass.scss`, usando `--touch-target` y el hover bajo `@media (hover: hover)`, y aplicarla en ambos componentes. Conviene hacerlo después de las tareas de área táctil y de hover.
+  * **Resultado esperado:** Una sola definición y el mismo resultado visual en el hero y en el pie.
+
+- [ ] **Reemplazar los selectores frágiles y unificar nombres BEM**
+  * **Diagnóstico:** Algunos selectores dependen de la estructura del DOM: `.skill > p`, `.cv-card__body > p:last-of-type`, `.section-heading>p:last-child`, `.contact-panel__intro > p:last-child`, `.footer__socials a` y `.timeline__card h3`. A la vez conviven clases que no siguen BEM (`.copy-btn`, `.email-link`, `.email-icon`) con el resto, que sí lo sigue.
+  * **Acción:** Agregar clases explícitas (`skill__description`, `cv-card__text`, `section-heading__lead`, `footer__social`, `timeline__title`) y renombrar `copy-btn` → `email-container__copy`, `email-link` → `email-container__link` y `email-icon` → `email-container__icon`, en SCSS y TSX a la vez.
+  * **Resultado esperado:** No quedan selectores con `>`, `:last-child` ni `:last-of-type` sobre etiquetas en los SCSS de componente, y las capturas no cambian.
+
+- [ ] **Decidir si la primera visita sigue `prefers-color-scheme` (requiere aprobación)**
+  * **Diagnóstico:** Sin un valor guardado, `App.tsx` (línea 23) usa `"dark"` e ignora la preferencia del sistema. Coincide con `AGENTS.md` ("Modo oscuro por defecto"), así que no es un error, sino una decisión de diseño.
+  * **Acción:** Si se aprueba, usar `matchMedia('(prefers-color-scheme: light)')` solo cuando no haya nada guardado, tanto en `App.tsx` como en el script inline, y actualizar `AGENTS.md`.
+  * **Resultado esperado:** Con DevTools emulando `prefers-color-scheme: light` y el `localStorage` vacío, la primera carga sale en tema claro sin flash.
+
+- [ ] **Decidir `viewport-fit=cover` y `safe-area-inset` (requiere aprobación)**
+  * **Diagnóstico:** El `<meta name="viewport">` no lleva `viewport-fit=cover`, así que en un iPhone con notch en horizontal Safari deja márgenes y el fondo ambiental no llega al borde. Hoy no hay solapamiento con el notch, porque `env(safe-area-inset-*)` vale 0.
+  * **Acción:** Si se aprueba, agregar `viewport-fit=cover` y luego `padding-inline: max(var(--page-gutter), env(safe-area-inset-left/right))` en `.navbar__inner`, `.section__inner` y `.footer__inner`, y `padding-right: max(22px, env(safe-area-inset-right))` en `.nav-drawer__paper`.
+  * **Resultado esperado:** En un iPhone en horizontal, el fondo llega a los bordes y ningún texto ni botón queda bajo el notch.
+
+---
+
+## Orden sugerido de ejecución
+
+0. **Contraste sobre el fondo:** halo de legibilidad y color de los eyebrows (hechos). Después: recolorear las cintas del tema oscuro, luego las del tema claro, luego el ajuste visual y luego documentar la regla de luminancia. `.footer__role` solo si sigue fallando; al final, volver a medir el texto sobre vidrio. Medir con `node scripts/contrast.mjs` antes y después de cada paso.
+0b. **Experiencia:** tipar los datos, luego el escalonado en escritorio, luego icono y etiqueta de tipo, luego duración, luego la versión móvil compacta; después, según lo que decidas, la descripción plegable, las tecnologías y el conector; al final, la revisión.
+1. **Accesibilidad base:** foco sin `border-radius`, nombre accesible del logo y `aria-expanded`.
+2. **Área táctil:** crear el token `--touch-target` y luego barra, iconos sociales y `IconButton`.
+3. **Interacción:** hover solo con puntero, icono de premios con foco y un enlace por tarjeta de premio.
+4. **Tema:** medir el flash y, si aparece, aplicar el tema antes del primer pintado; después sincronizar `theme-color`.
+5. **Anclas y estados:** `scroll-margin-top` de `#cv` y error al copiar.
+6. **Tokens:** sombras y velos, luego botón de acento y luego etiquetas monoespaciadas.
+7. **Especificidad:** `!important` de iconos SVG, luego `Contact.scss` y luego `Navigation.scss`.
+8. **Coherencia del vidrio:** tarjetas no interactivas, vidrio anidado y desenfoque del drawer (las dos primeras necesitan confirmación visual).
+9. **Verificaciones:** foco del drawer, layout de 320 a 1920 px, `forced-colors`, y Safari, Firefox y Android.
+10. **Baja:** radios, duraciones, escala tipográfica, breakpoints, reglas muertas, `body.theme-light`, `.icon-tile`, `.icon-link`, nombres BEM y, por último, las dos decisiones que requieren aprobación.
+
+## Chequeo después de cada tarea
+
+1. `npx tsc --noEmit`
+2. `CI=true npm test -- --watchAll=false`
+3. `npm run build`
+4. Si la tarea toca colores, tokens de texto, `--ribbon-*` o el fondo ambiental: `node scripts/contrast.mjs` (o `npm run contrast` cuando exista), con `npm start` en marcha.
+5. Con `npm start` corriendo en `:3000`: `npm run shots`, que genera capturas en ambos temas, a 1440×900 y 390×844, en `screenshots/` (carpeta ignorada por git). Compararlas con las capturas anteriores a la tarea.
+
+`npm run shots` se ejecuta con `reducedMotion: "reduce"` y solo captura hero, competencias y reconocimientos. No cubre foco, hover, áreas táctiles, el drawer ni el contacto. En las tareas que tocan esas zonas, además hay que repetir la comprobación manual indicada en su **Resultado esperado**.

@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# visual QA (Playwright captures)
+/screenshots
+
 # production
 /build
 

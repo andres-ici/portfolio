@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-05T15:25:34-03:00",
+  "title": "Design System: Andrés Carrasco Inostroza — Portafolio",
+  "extensions": {
+    "colorMeta": {
+      "canvas-night": {
+        "role": "neutral",
+        "displayName": "Grafito Nocturno",
+        "canonical": "#070a0f",
+        "tonalRamp": ["#090b0f", "#26292e", "#464b51", "#6a6f76", "#91969c", "#babec4", "#dbdee2", "#f0f2f5"]
+      },
+      "canvas-night-elevated": {
+        "role": "neutral",
+        "displayName": "Grafito Elevado",
+        "canonical": "#0c131b",
+        "tonalRamp": ["#070c10", "#232a31", "#434b55", "#67707a", "#8e96a0", "#b7bfc7", "#d9dfe5", "#eef2f7"]
+      },
+      "canvas-night-deep": {
+        "role": "neutral",
+        "displayName": "Grafito Profundo",
+        "canonical": "#05080c",
+        "tonalRamp": ["#090b0f", "#25272b", "#45484d", "#696c72", "#909398", "#b9bcc1", "#dadde1", "#eff1f4"]
+      },
+      "text-primary-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Primaria",
+        "canonical": "#e9eef4",
+        "tonalRamp": ["#090b0e", "#26292d", "#474b50", "#6b6f74", "#91969b", "#babec2", "#dcdee1", "#f0f2f4"]
+      },
+      "text-secondary-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Secundaria",
+        "canonical": "#93a2b2",
+        "tonalRamp": ["#060c13", "#202a35", "#3f4c59", "#62707f", "#8997a5", "#b4bfcb", "#d6dfe8", "#ecf3f9"]
+      },
+      "text-tertiary-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Terciaria",
+        "canonical": "#6f7e8e",
+        "tonalRamp": ["#050c13", "#1d2833", "#3b4957", "#5d6c7c", "#8492a2", "#b0bbc9", "#d4dce6", "#ebf1f8"]
+      },
+      "instrument-blue": {
+        "role": "primary",
+        "displayName": "Azul Instrumento",
+        "canonical": "#7da2ce",
+        "tonalRamp": ["#000b1e", "#0e2a48", "#2b4c72", "#4e719a", "#7798c0", "#a4c1e2", "#cbe0fa", "#eaf3fe"]
+      },
+      "instrument-blue-bright": {
+        "role": "primary",
+        "displayName": "Azul Instrumento Brillante",
+        "canonical": "#a9c6ea",
+        "tonalRamp": ["#020b1b", "#162a42", "#344c6a", "#567191", "#7e98b7", "#abc0da", "#d0e0f4", "#eaf3fe"]
+      },
+      "instrument-blue-deep": {
+        "role": "primary",
+        "displayName": "Azul Instrumento Profundo",
+        "canonical": "#4d76a4",
+        "tonalRamp": ["#000b1d", "#072a4c", "#254c76", "#49719f", "#7299c5", "#a1c1e6", "#c9e1fd", "#e9f3ff"]
+      },
+      "signal-violet": {
+        "role": "secondary",
+        "displayName": "Violeta Señal",
+        "canonical": "#d44dff",
+        "tonalRamp": ["#17001f", "#420054", "#72028f", "#a705cf", "#cd56f5", "#e59dff", "#f2d0fe", "#faecff"]
+      },
+      "signal-violet-mid": {
+        "role": "secondary",
+        "displayName": "Violeta Señal Medio",
+        "canonical": "#9a5cff",
+        "tonalRamp": ["#100029", "#340068", "#5d00b1", "#813ee0", "#a474ff", "#c5aeff", "#e1d7fe", "#f3effe"]
+      },
+      "signal-blue": {
+        "role": "tertiary",
+        "displayName": "Azul Señal",
+        "canonical": "#5f8fd6",
+        "tonalRamp": ["#000a22", "#01265a", "#1d4988", "#406fb3", "#6a96d8", "#9bc0f7", "#cbe0ff", "#eaf2ff"]
+      },
+      "canvas-light": {
+        "role": "neutral",
+        "displayName": "Grafito Diurno",
+        "canonical": "#edf1f5",
+        "tonalRamp": ["#0a0b0d", "#27292c", "#484b4e", "#6c6f72", "#929699", "#bbbec1", "#dcdee0", "#f0f2f3"]
+      },
+      "canvas-light-elevated": {
+        "role": "neutral",
+        "displayName": "Grafito Diurno Elevado",
+        "canonical": "#f7f9fb",
+        "tonalRamp": ["#0a0b0c", "#28292a", "#494a4c", "#6d6f70", "#949597", "#bcbebf", "#dddedf", "#f1f2f3"]
+      },
+      "text-primary-light": {
+        "role": "neutral",
+        "displayName": "Tinta Diurna Primaria",
+        "canonical": "#0c141d",
+        "tonalRamp": ["#070c11", "#222a32", "#424b56", "#66707b", "#8d96a2", "#b6bfc8", "#d8dfe6", "#eef2f8"]
+      },
+      "instrument-blue-light": {
+        "role": "primary",
+        "displayName": "Azul Instrumento Diurno",
+        "canonical": "#2e5e96",
+        "tonalRamp": ["#000b1f", "#002853", "#1c4b80", "#4171aa", "#6b98cf", "#9bc1ef", "#c8e1fe", "#e9f3ff"]
+      },
+      "instrument-blue-bright-light": {
+        "role": "primary",
+        "displayName": "Azul Instrumento Diurno Brillante",
+        "canonical": "#336492",
+        "tonalRamp": ["#000c1b", "#002a4c", "#1d4d78", "#4272a1", "#6c9ac7", "#9cc2e8", "#c6e2fe", "#e8f3ff"]
+      },
+      "text-tertiary-light": {
+        "role": "neutral",
+        "displayName": "Tinta Diurna Terciaria",
+        "canonical": "#566573",
+        "tonalRamp": ["#050c13", "#1f2a35", "#3e4c59", "#61717f", "#8997a5", "#b3bfcb", "#d6dfe8", "#ecf3f9"]
+      },
+      "ribbon-blueprint": {
+        "role": "secondary",
+        "displayName": "Cinta Blueprint",
+        "canonical": "#6d7fa3",
+        "tonalRamp": ["#040a1b", "#1c2842", "#3a4a6a", "#5d6f92", "#8495b7", "#afbedb", "#d3def4", "#ecf2fe"]
+      },
+      "ribbon-blueprint-mid": {
+        "role": "secondary",
+        "displayName": "Cinta Blueprint Media",
+        "canonical": "#7d8fad",
+        "tonalRamp": ["#040b19", "#1d293e", "#3b4b65", "#5e6f8c", "#8596b2", "#b0bfd6", "#d4dff0", "#ebf2fe"]
+      },
+      "ribbon-blueprint-deep": {
+        "role": "tertiary",
+        "displayName": "Cinta Blueprint Profunda",
+        "canonical": "#4f6f96",
+        "tonalRamp": ["#000b1e", "#112a47", "#2e4c70", "#517198", "#7998be", "#a6c0e0", "#cde0f8", "#eaf3fe"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Solo el nombre completo en el hero." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de sección." },
+      "title": { "displayName": "Title", "purpose": "Títulos de tarjeta, habilidad y entrada de timeline." },
+      "body": { "displayName": "Body", "purpose": "Párrafos de lectura; ancho máximo 620–820px." },
+      "label": { "displayName": "Eyebrow Label", "purpose": "Etiquetas de sección en monoespaciada con línea guía." },
+      "caption": { "displayName": "Caption Mono", "purpose": "Chips, índices, fechas y numeración." },
+      "nav": { "displayName": "Nav Link", "purpose": "Enlaces de navegación de escritorio." },
+      "button": { "displayName": "Button Label", "purpose": "Texto de botones de vidrio y de acento." },
+      "headline-contact": { "displayName": "Contact Headline", "purpose": "Título del panel de contacto, un paso sobre el headline de sección." }
+    },
+    "shadows": [
+      { "name": "glass-rest", "value": "inset 0 1px 0 rgba(255,255,255,0.16), 0 24px 70px rgba(0,0,0,0.38), 0 2px 10px rgba(0,0,0,0.18)", "purpose": "Toda superficie .glass en reposo." },
+      { "name": "glass-hover", "value": "inset 0 1px 0 rgba(255,255,255,0.16), 0 30px 80px rgba(0,0,0,0.42), 0 0 0 1px rgba(125,162,206,0.14)", "purpose": "Solo .glass--interactive al hover, junto a translateY(-3px)." },
+      { "name": "nav-scrolled", "value": "inset 0 1px 0 rgba(255,255,255,0.16), 0 20px 55px rgba(0,0,0,0.34)", "purpose": "Barra flotante tras 24px de scroll." },
+      { "name": "portrait-ring", "value": "inset 0 1px 0 rgba(255,255,255,0.16), 0 28px 70px rgba(0,0,0,0.34), 0 0 0 8px rgba(125,162,206,0.14)", "purpose": "Marco circular del retrato; el único anillo de acento permanente." },
+      { "name": "drawer", "value": "-24px 0 70px rgba(0,0,0,0.32)", "purpose": "Drawer móvil: sombra lateral direccional." },
+      { "name": "email-hover", "value": "inset 0 1px 0 rgba(255,255,255,0.16), 0 14px 40px rgba(0,0,0,0.22), 0 0 0 1px rgba(125,162,206,0.14)", "purpose": "Píldora de correo al hover." },
+      { "name": "glass-rest-light", "value": "inset 0 1px 0 rgba(255,255,255,0.95), 0 26px 64px rgba(31,52,78,0.16), 0 2px 10px rgba(31,52,78,0.1)", "purpose": "Vidrio ahumado en reposo: sombra azulada, nunca negra." },
+      { "name": "glass-hover-light", "value": "inset 0 1px 0 rgba(255,255,255,0.95), 0 26px 60px rgba(31,52,78,0.2), 0 0 0 1px rgba(46,94,150,0.12)", "purpose": "Hover del vidrio ahumado y de la píldora de correo en claro." }
+    ],
+    "motion": [
+      { "name": "duration-fast", "value": "160ms", "purpose": "Hover y foco de controles." },
+      { "name": "duration-base", "value": "240ms", "purpose": "Cambios de borde, fondo y sombra en tarjetas." },
+      { "name": "duration-slow", "value": "560ms", "purpose": "Transiciones amplias y barrido de brillo del vidrio." },
+      { "name": "ease-out", "value": "cubic-bezier(0.22, 0.61, 0.36, 1)", "purpose": "Elevación, desplazamientos y reveals." },
+      { "name": "ease-soft", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Color, opacidad y deriva del fondo." },
+      { "name": "reveal", "value": "opacity 680ms + translate3d(0, 22px, 0)", "purpose": "Aparición de bloques al entrar en viewport." },
+      { "name": "ambient-drift", "value": "32s alternate", "purpose": "Deriva de las cintas; se pausa fuera del hero." }
+    ],
+    "breakpoints": [
+      { "name": "nav-collapse", "value": "900px" },
+      { "name": "skills-2col", "value": "980px" },
+      { "name": "awards-1col", "value": "780px" },
+      { "name": "hero-stack", "value": "768px" },
+      { "name": "skills-1col", "value": "700px" },
+      { "name": "timeline-compact", "value": "640px" },
+      { "name": "contact-compact", "value": "560px" },
+      { "name": "buttons-full", "value": "480px" },
+      { "name": "hero-column", "value": "420px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-accent",
+      "description": "Botón de acción principal: «Ver CV». Único elemento con relleno de color pleno.",
+      "html": "<a class=\"ds-btn ds-btn--accent\" href=\"#\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><path d=\"M14 3v12a2 2 0 0 1-2 2H6\"/><path d=\"M18 7l-4-4 4-4\" transform=\"translate(0 4)\"/><rect x=\"4\" y=\"3\" width=\"12\" height=\"18\" rx=\"2\"/></svg>Ver CV</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55em;min-height:44px;padding:.72rem 1.2rem;border:1px solid var(--glass-border);border-radius:var(--radius-pill);background:var(--glass-gradient);box-shadow:inset 0 1px 0 var(--glass-highlight);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));color:var(--text-primary);font-family:var(--font-mono);font-size:.76rem;font-weight:500;letter-spacing:.09em;line-height:1;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform var(--duration-fast) var(--ease-out),border-color var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out)}.ds-btn svg{width:16px;height:16px;flex:0 0 auto}.ds-btn:hover{transform:translateY(-1px);border-color:var(--accent-line);box-shadow:inset 0 1px 0 var(--glass-highlight),0 10px 30px rgba(0,0,0,.24)}.ds-btn:active{transform:translateY(0)}.ds-btn:focus-visible{outline:2px solid var(--accent-bright);outline-offset:3px}.ds-btn--accent{border-color:rgba(169,198,234,.55);background:linear-gradient(135deg,var(--accent-bright) 0%,var(--accent) 55%,var(--accent-deep) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 12px 40px rgba(77,118,164,.28);color:#06101b}.ds-btn--accent:hover{border-color:var(--accent-bright);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 16px 46px rgba(77,118,164,.38);color:#06101b}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-glass",
+      "description": "Acción secundaria: «Contacto», «Descargar». Vidrio sin color pleno.",
+      "html": "<a class=\"ds-btn\" href=\"#\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 7l9 6 9-6\"/></svg>Contacto</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.55em;min-height:44px;padding:.72rem 1.2rem;border:1px solid var(--glass-border);border-radius:var(--radius-pill);background:var(--glass-gradient);box-shadow:inset 0 1px 0 var(--glass-highlight);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));color:var(--text-primary);font-family:var(--font-mono);font-size:.76rem;font-weight:500;letter-spacing:.09em;line-height:1;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform var(--duration-fast) var(--ease-out),border-color var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out)}.ds-btn svg{width:16px;height:16px;flex:0 0 auto}.ds-btn:hover{transform:translateY(-1px);border-color:var(--accent-line);box-shadow:inset 0 1px 0 var(--glass-highlight),0 10px 30px rgba(0,0,0,.24)}.ds-btn:active{transform:translateY(0)}.ds-btn:focus-visible{outline:2px solid var(--accent-bright);outline-offset:3px}"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "card-glass",
+      "description": "Superficie base para habilidades, timeline, reconocimientos y panel de contacto.",
+      "html": "<article class=\"ds-card\"><span class=\"ds-card__index\">01</span><h3>Automatización y control</h3><p>Diseño de lazos de control, instrumentación y puesta en marcha de procesos industriales.</p></article>",
+      "css": ".ds-card{position:relative;padding:26px;border:1px solid var(--glass-border);border-radius:var(--radius-lg);background:var(--glass-gradient);box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));isolation:isolate;color:var(--text-primary);font-family:var(--font-body)}.ds-card::before{content:'';position:absolute;inset:0;z-index:1;padding:1px;border-radius:inherit;background:linear-gradient(142deg,var(--glass-border-strong) 0%,rgba(255,255,255,.03) 34%,rgba(255,255,255,0) 58%,var(--accent-line) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none;opacity:.8}.ds-card>*{position:relative;z-index:2}.ds-card__index{color:var(--text-tertiary);font-family:var(--font-mono);font-size:.64rem;letter-spacing:.14em}.ds-card h3{margin:24px 0 0;font-family:var(--font-display);font-size:1.18rem;font-weight:600;line-height:1.3;letter-spacing:-.02em}.ds-card p{margin:12px 0 0;color:var(--text-secondary);font-size:.92rem;line-height:1.75}"
+    },
+    {
+      "name": "Interactive Award Card",
+      "kind": "card",
+      "refersTo": "card-glass",
+      "description": "Tarjeta de reconocimiento con marco 4:3, zoom sutil y botón de salida al hover.",
+      "html": "<article class=\"ds-award\"><a class=\"ds-award__frame\" href=\"#\"><span class=\"ds-award__plate\"></span><span class=\"ds-award__open\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><path d=\"M7 17L17 7\"/><path d=\"M9 7h8v8\"/></svg></span></a><div class=\"ds-award__body\"><h3><a href=\"#\">Premio Colegio de Ingenieros de Chile<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><path d=\"M7 17L17 7\"/><path d=\"M9 7h8v8\"/></svg></a></h3><p>Mejor Titulado de la Promoción 2025. Nota final de titulación: 6,7.</p></div></article>",
+      "css": ".ds-award{display:flex;flex-direction:column;padding:14px 14px 24px;border:1px solid var(--glass-border);border-radius:var(--radius-lg);background:var(--glass-gradient);box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));color:var(--text-primary);font-family:var(--font-body);transition:transform var(--duration-base) var(--ease-out),border-color var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out)}.ds-award:hover{transform:translateY(-3px);border-color:var(--glass-border-strong);box-shadow:inset 0 1px 0 var(--glass-highlight),0 30px 80px rgba(0,0,0,.42),0 0 0 1px var(--accent-soft)}.ds-award__frame{position:relative;display:block;aspect-ratio:4/3;overflow:hidden;padding:8px;border:1px solid var(--hairline);border-radius:15px;background:var(--bg-deep)}.ds-award__plate{display:block;width:100%;height:100%;border-radius:9px;background:linear-gradient(135deg,#1b2740 0%,#123047 52%,#241a3d 100%);transition:transform 620ms var(--ease-out)}.ds-award:hover .ds-award__plate{transform:scale(1.025)}.ds-award__open{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--glass-border);border-radius:50%;background:var(--glass-solid);color:var(--accent-bright);opacity:0;transform:translateY(-4px);transition:opacity var(--duration-base) var(--ease-soft),transform var(--duration-base) var(--ease-out)}.ds-award:hover .ds-award__open{opacity:1;transform:translateY(0)}.ds-award__open svg{width:16px;height:16px}.ds-award__body{padding:20px 8px 0}.ds-award__body h3{margin:0;font-family:var(--font-display);font-size:1.14rem;font-weight:600;line-height:1.35;letter-spacing:-.02em}.ds-award__body h3 a{display:inline-flex;align-items:baseline;gap:8px;color:inherit;text-decoration:none}.ds-award__body h3 a svg{width:15px;height:15px;flex:0 0 auto;color:var(--text-tertiary);transition:color var(--duration-fast) var(--ease-soft),transform var(--duration-fast) var(--ease-out)}.ds-award__body h3 a:hover svg{transform:translate(2px,-2px);color:var(--accent-bright)}.ds-award__body p{margin:10px 0 0;color:var(--text-secondary);font-size:.9rem;line-height:1.75}"
+    },
+    {
+      "name": "Tech Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Etiqueta no interactiva para listar tecnologías dentro de una tarjeta.",
+      "html": "<span class=\"ds-chip\">PLC</span> <span class=\"ds-chip\">SCADA</span> <span class=\"ds-chip\">Python</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;padding:5px 9px;border:1px solid var(--hairline);border-radius:var(--radius-pill);background:var(--accent-soft);color:var(--text-secondary);font-family:var(--font-mono);font-size:.64rem;line-height:1.3;white-space:nowrap}"
+    },
+    {
+      "name": "Eyebrow Label",
+      "kind": "custom",
+      "refersTo": "nav-link",
+      "description": "Etiqueta de sección con línea guía de 28px; abre cada bloque de contenido.",
+      "html": "<p class=\"ds-eyebrow\">02 / Competencias</p>",
+      "css": ".ds-eyebrow{display:flex;align-items:center;gap:12px;margin:0;color:var(--accent);font-family:var(--font-mono);font-size:.72rem;font-weight:500;letter-spacing:.18em;line-height:1.4;text-transform:uppercase}.ds-eyebrow::before{content:'';width:28px;height:1px;flex:0 0 auto;background:var(--accent-line)}"
+    },
+    {
+      "name": "Navigation Pill",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Barra flotante fija: monograma, enlaces y acciones. Colapsa a Drawer en 900px.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav__brand\"><span class=\"ds-nav__mark\">AC</span><span class=\"ds-nav__name\">Andrés Carrasco</span></span><span class=\"ds-nav__links\"><a class=\"ds-nav__link\" href=\"#\">Competencias</a><a class=\"ds-nav__link ds-nav__link--active\" href=\"#\">Experiencia</a><a class=\"ds-nav__link\" href=\"#\">Contacto</a></span></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:62px;padding:0 10px 0 12px;border:1px solid var(--glass-border);border-radius:var(--radius-pill);background:var(--glass-gradient);box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));color:var(--text-primary);font-family:var(--font-body)}.ds-nav__brand{display:inline-flex;align-items:center;gap:10px;min-width:0}.ds-nav__mark{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--glass-border);border-radius:11px;background:linear-gradient(145deg,var(--accent-soft),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 var(--glass-highlight);color:var(--accent-bright);font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.05em}.ds-nav__name{font-family:var(--font-display);font-size:.88rem;font-weight:600;letter-spacing:-.01em;white-space:nowrap}.ds-nav__links{display:flex;align-items:center;gap:2px;margin-inline:auto}.ds-nav__link{padding:9px 13px;border:1px solid transparent;border-radius:var(--radius-pill);color:var(--text-secondary);font-family:var(--font-mono);font-size:.68rem;font-weight:500;letter-spacing:.11em;line-height:1;text-transform:uppercase;text-decoration:none;transition:color var(--duration-fast) var(--ease-soft),background-color var(--duration-fast) var(--ease-soft),border-color var(--duration-fast) var(--ease-soft)}.ds-nav__link:hover{border-color:var(--hairline);background:var(--accent-soft);color:var(--text-primary)}.ds-nav__link--active{border-color:var(--accent-line);background:var(--accent-soft);color:var(--text-primary)}"
+    },
+    {
+      "name": "Email Pill",
+      "kind": "input",
+      "refersTo": "chip",
+      "description": "Único elemento tipo campo: correo enlazado más botón de copiado con confirmación.",
+      "html": "<div class=\"ds-email\"><a class=\"ds-email__link\" href=\"mailto:andres.carrasco@ingenieros.cl\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 7l9 6 9-6\"/></svg><span>andres.carrasco@ingenieros.cl</span></a><span class=\"ds-email__divider\"></span><button class=\"ds-email__copy\" aria-label=\"Copiar correo\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"9\" y=\"9\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M5 15V5a2 2 0 0 1 2-2h8\"/></svg></button></div>",
+      "css": ".ds-email{display:inline-flex;align-items:center;gap:10px;max-width:100%;padding:8px 8px 8px 18px;border:1px solid var(--glass-border);border-radius:var(--radius-pill);background:var(--glass-gradient);box-shadow:inset 0 1px 0 var(--glass-highlight),var(--glass-shadow);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));font-family:var(--font-body);transition:border-color var(--duration-base) var(--ease-soft),box-shadow var(--duration-base) var(--ease-soft)}.ds-email:hover{border-color:var(--accent-line);box-shadow:inset 0 1px 0 var(--glass-highlight),0 14px 40px rgba(0,0,0,.22),0 0 0 1px var(--accent-soft)}.ds-email__link{display:inline-flex;align-items:center;gap:10px;min-width:0;color:var(--text-primary);font-size:.98rem;font-weight:500;line-height:1.4;text-decoration:none}.ds-email__link svg{width:18px;height:18px;flex:0 0 auto;color:var(--accent)}.ds-email__divider{width:1px;height:24px;flex:0 0 auto;background:var(--hairline)}.ds-email__copy{display:grid;place-items:center;width:34px;height:34px;flex:0 0 auto;padding:0;border:0;border-radius:50%;background:transparent;color:var(--text-secondary);cursor:pointer;transition:color var(--duration-fast) var(--ease-soft),background-color var(--duration-fast) var(--ease-soft)}.ds-email__copy:hover{background:var(--accent-soft);color:var(--accent-bright)}.ds-email__copy svg{width:16px;height:16px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Instrumento de Precisión",
+    "overview": "El sitio se comporta como un instrumento de medición bien calibrado: no grita, no decora y no compite con la lectura. Un campo de cintas violeta y azul se mueve lentamente al fondo —la señal— y sobre él se apoyan superficies de vidrio que funcionan como lecturas, con etiquetas en monoespaciada y cifras alineadas. La atmósfera es precisa y serena: la confianza viene del detalle técnico, no de la hipérbole.\n\nLa densidad es media-baja. Cada sección respira con un espaciado generoso y un ritmo constante, y la jerarquía se construye con escala tipográfica y contraste de color, nunca con cajas de colores saturados. El resultado debe sentirse como una sala de instrumentación de noche: oscura, ordenada y con una fuente de luz que no molesta.\n\nEl sistema se declara en contra de la landing SaaS genérica: hero centrado, tarjetas idénticas, botones gritones y degradados morados sin relación con el contenido. Todo lo que se parezca a una plantilla de producto se considera fuera de mundo. La versión clara no es otro sistema: es el mismo instrumento bajo luz de día, con vidrio ahumado frío y las cintas rebajadas a blueprint.",
+    "keyCharacteristics": [
+      "Vidrio en capas con desenfoque real, borde especular de 1px y sombra de anclaje.",
+      "Grafito casi negro como lienzo; el color solo aparece en el acento y en el fondo.",
+      "Manrope para titulares, Inter para lectura, IBM Plex Mono para toda etiqueta técnica.",
+      "Píldoras y círculos para lo interactivo; esquinas medianas para las superficies.",
+      "Movimiento lento y presupuestado: 160–560ms en interacción, 26–38s en el fondo."
+    ],
+    "rules": [
+      { "name": "La Regla del Fondo Silencioso", "body": "El campo ambiental nunca compite con el contenido: se pausa al salir del hero, con la pestaña oculta y con prefers-reduced-motion.", "section": "colors" },
+      { "name": "La Regla del Violeta de Fondo", "body": "El violeta y el magenta están prohibidos fuera del campo ambiental. Si aparece en un botón, un borde o un texto, el sistema se rompe.", "section": "colors" },
+      { "name": "La Regla del Azul Único", "body": "El azul es el único color interactivo. El único color ajeno permitido es el verde de confirmación de MUI al copiar el correo, y solo dentro de ese estado.", "section": "colors" },
+      { "name": "La Regla del Tema Espejo", "body": "Todo token nuevo se declara en :root y en .main-container.light-mode, body.theme-light. Un token sin espejo claro es un bug.", "section": "colors" },
+      { "name": "La Regla Mono-Etiqueta", "body": "IBM Plex Mono solo etiqueta, nunca explica. Un párrafo, una descripción o un mensaje de más de una línea jamás va en monoespaciada.", "section": "typography" },
+      { "name": "La Regla del Tracking Inverso", "body": "A mayor tamaño, menor tracking: los titulares aprietan entre −0.02em y −0.05em; las etiquetas monoespaciadas abren entre 0.1em y 0.18em.", "section": "typography" },
+      { "name": "La Regla de la Columna Única de Lectura", "body": "Ningún párrafo supera 820px, y los introductorios se quedan en 520–620px. El ancho completo se reserva para rejillas y superficies, no para texto.", "section": "elevation" },
+      { "name": "La Regla del Vidrio en Capas", "body": "La profundidad se construye con desenfoque y borde, no con sombra. Si una superficie necesita una sombra más fuerte para separarse, primero falta contraste de borde o de relleno.", "section": "elevation" },
+      { "name": "La Regla del Anillo de Acento", "body": "El anillo 0 0 0 Npx var(--accent-soft) se reserva para el retrato y los marcadores de timeline. No se usa como foco genérico.", "section": "elevation" },
+      { "name": "La Regla del Vidrio Ahumado", "body": "En tema claro la profundidad sale del tinte frío, el borde pizarra y una sombra azulada. Prohibido resolverla con blanco aditivo, sombra negra o un borde blanco.", "section": "elevation" },
+      { "name": "La Regla de la Píldora", "body": "Si se puede pulsar, es píldora o círculo. Si contiene contenido, es rectángulo de esquinas medianas. Nunca al revés.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do declarar cada token nuevo en :root y en el bloque claro (.main-container.light-mode, body.theme-light), incluido el Drawer.",
+      "Do reutilizar .glass, .glass--interactive, .glass--pill y .glass-button antes de escribir estilos de superficie nuevos.",
+      "Do usar IBM Plex Mono para etiquetas, índices, fechas y numeración, con tracking entre 0.1em y 0.18em.",
+      "Do mantener el azul como único color de interacción y el violeta confinado al fondo.",
+      "Do preservar los tres estados de accesibilidad ya implementados: foco visible de 2px, prefers-reduced-motion y prefers-reduced-transparency.",
+      "Do verificar ambos temas: cualquier superficie nueva debe leerse sobre grafito y sobre papel.",
+      "Do tratar el tema claro como vidrio ahumado: tinte frío al 30–55%, borde pizarra y sombra azulada."
+    ],
+    "donts": [
+      "Don't usar violeta o magenta en texto, bordes, botones o iconos; pertenecen al campo ambiental.",
+      "Don't introducir una tercera familia tipográfica ni usar Manrope para párrafos.",
+      "Don't construir un hero centrado con tarjetas idénticas y CTA gritón: es la anti-referencia declarada del sistema.",
+      "Don't añadir sombras más fuertes para \"destacar\" una tarjeta; primero corrige borde, relleno o contraste.",
+      "Don't animar los <g> del SVG ambiental ni dejar el campo corriendo fuera del hero.",
+      "Don't usar esquinas rectas en elementos interactivos ni píldoras en contenedores de contenido.",
+      "Don't sustituir el vidrio por fondos planos opacos salvo en prefers-reduced-transparency o cuando falte backdrop-filter.",
+      "Don't reutilizar las sombras negras ni los bordes blancos del tema oscuro en claro: allí la sombra es fría y el borde es pizarra."
+    ]
+  }
+}
