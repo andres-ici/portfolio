@@ -10,7 +10,7 @@ const experience = [
     title: "Ingeniero Civil Electrónico – Memoria de Título",
     organization: "Compañía Minera Doña Inés de Collahuasi SCM",
     description:
-      "Optimización de la automatización en la planta de molibdeno, identificando y definiendo puntos de operación óptimos para mejorar la eficiencia operativa.",
+      "Me incorporé al final del overhaul de la planta de molibdeno para ejecutar la puesta en marcha y definir los puntos de operación de los hidrociclones. Caractericé el funcionamiento previo con datos históricos, implementé lógicas de control en DCS Emerson y entrevisté a operadores. La integración elevó entre 5 y 10 puntos la ley final.",
   },
   {
     date: "Jun 2024 – Jun 2025",
@@ -18,14 +18,14 @@ const experience = [
     organization:
       "Centro de Estudiantes de Ingeniería Civil Electrónica – UFRO",
     description:
-      "Representación de los intereses estudiantiles ante la dirección de carrera y organización de actividades académicas y extracurriculares.",
+      "Representé los intereses estudiantiles ante la dirección de carrera, con énfasis en la inclusión de nuevos estudiantes. Organicé visitas industriales a empresas locales para estudiantes de primeros años, con más de 30 participantes.",
   },
   {
     date: "Ago 2023 – Dic 2024",
     title: "Ingeniero de Proyectos – Control Automático",
     organization: "Proyecto de Seguimiento Solar – Universidad de La Frontera",
     description:
-      "Diseño e implementación del control automático de seguimiento solar y programación de actuadores.",
+      "Integré un equipo de tres personas que desarrolló un prototipo de seguidor solar. Diseñé e implementé un control PI sobre ESP32, con sensor de norte magnético y motores paso a paso con engranajes. Las pruebas confirmaron una ganancia energética de 10 a 15 %.",
   },
   {
     date: "Mar 2023 – Dic 2024",
@@ -33,7 +33,7 @@ const experience = [
     organization:
       "Línea Integradora de Formación en Ingeniería y Ciencias (LIFIC) – UFRO",
     description:
-      "Desarrollo de software de control de inventario, automatización del sistema de asistencia y mantenimiento informático.",
+      "Desarrollé con Google Apps Script soluciones de inventario y asistencia con códigos QR y una base de datos SQL con interfaz en Google Sheets. Integré un script en Python con el sistema PHP de la universidad para transferir la asistencia a los servidores oficiales, eliminando la carga manual.",
   },
   {
     date: "Ago 2021 – Dic 2022",
@@ -41,7 +41,7 @@ const experience = [
     organization:
       "Línea Integradora de Formación en Ingeniería y Ciencias (LIFIC) – UFRO",
     description:
-      "Ayudantías en sensores y Arduino; control de inventario y diseño en impresión 3D.",
+      "Ayudante de Microcontroladores y Sensores, asignatura transversal a las carreras de ingeniería, con grupos de más de 20 estudiantes. Elaboré guías, ejercicios y presentaciones, y apoyé las prácticas de sensores y Arduino.",
   },
   {
     date: "Ago 2020 – Ago 2022",
@@ -49,14 +49,14 @@ const experience = [
     organization:
       "Facultad de Ingeniería y Ciencias – Universidad de La Frontera",
     description:
-      "Ayudantías para la asignatura de Programación de Computadores (C/C++).",
+      "Ayudante de la asignatura Programación de Computadores (C/C++) durante cuatro semestres. Conduje sesiones semanales con ejercicios de dificultad creciente, resolví dudas y corregí talleres y quizzes.",
   },
   {
     date: "Mar 2021 – Ago 2021",
     title: "Desarrollador de Software (Chatbot IA)",
     organization: "Instituto iDEAUFRO – Universidad de La Frontera",
     description:
-      "Desarrollo de un chatbot con inteligencia artificial para la página web institucional.",
+      "Entrené un chatbot con la infraestructura de IBM Watson y lo integré al sitio web mediante JavaScript. Quedó operativo y se mantuvo en uso cerca de un año, hasta la actualización del sitio con ChatGPT.",
   },
 ];
 
