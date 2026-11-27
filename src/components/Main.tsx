@@ -53,7 +53,7 @@ function Main() {
             </a>
             <a
               className="hero__social"
-              href="https://www.linkedin.com/in/andr%C3%A9s-iv%C3%A1n-carrasco-inostroza-53a99a169/"
+              href="https://www.linkedin.com/in/andresici"
               target="_blank"
               rel="noreferrer"
               aria-label="LinkedIn de Andrés Carrasco"
